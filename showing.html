@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test API Credenziali</title>
+    <title>Test API Credenziali - Debug</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
+            max-width: 800px;
             margin: 50px auto;
             padding: 20px;
             background-color: #f5f5f5;
@@ -38,6 +38,9 @@
             margin-top: 10px;
             padding: 10px;
             border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
         }
         .success {
             background: #d4edda;
@@ -54,216 +57,228 @@
             background: #fff3cd;
             border: 1px solid #ffeaa7;
         }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
     </style>
 </head>
 <body>
-    <h1>Test API Credenziali</h1>
+    <h1>Test API Credenziali - Debug</h1>
 
     <div class="test-section">
-        <h2>Test Connessione API</h2>
-        <button onclick="testAPI()">Test Connessione</button>
-        <div id="apiResult"></div>
+        <h2>Test Connessione API - Debug Completo</h2>
+        <button onclick="testAPIDebug()">Test Connessione Completo</button>
+        <div id="apiDebugResult"></div>
     </div>
 
     <div class="test-section">
-        <h2>Test Credenziali Player</h2>
-        <input type="text" id="playerUser" placeholder="Username player" value="pippo">
-        <input type="password" id="playerPassword" placeholder="Password" value="seygex12">
-        <button onclick="testPlayer()">Test Player</button>
-        <div id="playerResult"></div>
+        <h2>Test API Principale</h2>
+        <button onclick="testMainAPI()">Test API Principale</button>
+        <div id="mainAPIResult"></div>
     </div>
 
     <div class="test-section">
-        <h2>Test Credenziali Admin</h2>
-        <input type="text" id="adminUser" placeholder="Username admin" value="admin">
-        <input type="password" id="adminPassword" placeholder="Password" value="123">
-        <button onclick="testAdmin()">Test Admin</button>
-        <div id="adminResult"></div>
+        <h2>Test API Alternativa</h2>
+        <button onclick="testAltAPI()">Test API Alternativa</button>
+        <div id="altAPIResult"></div>
     </div>
 
     <div class="test-section">
-        <h2>Test Unità Player</h2>
-        <input type="text" id="unitUser" placeholder="Username player" value="pippo">
-        <button onclick="testUnit()">Test Unità</button>
-        <div id="unitResult"></div>
+        <h2>Test RAW Response</h2>
+        <button onclick="testRawResponse()">Test Risposta RAW</button>
+        <div id="rawResult"></div>
     </div>
 
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbzax_zbu_DO5YI-ZrDIQ4TocaCP_ACfpPqzHhEiKDw/dev';
         const API_URL_ALT = 'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLj7NKo_YXXehHyAbh0Kr3SguoqO_hyHe1tf5ZIju7mbLiTNqy6n1pvVSzRbimOW_CQqLMwjx7Yq7IP97zvRfmSZeWwpI-ODWDSeLdKTobOa9dDSIDJsNSJ3L3HiaPBzCk0iQUrfV7vZArELDAV16ON5XBzy9gmFQ-yHNpO0dyoPlraYOlWTQRBev2TkF_jjnGoIK6G8eUyRyNvrP31F7XuWIcD0FDdOXv17MGgUx40U53t-HOMVFsM1x3h9L3WN-sLjuNabs4jJFX1KkRXfh-EtHG2dJA&lib=MLV1ks7wQQ37SnILDHqD1wVTcg6hxLEu9';
 
-        async function testAPI() {
-            const resultDiv = document.getElementById('apiResult');
-            resultDiv.innerHTML = '<div class="loading">Test in corso...</div>';
+        async function testAPIDebug() {
+            const resultDiv = document.getElementById('apiDebugResult');
+            resultDiv.innerHTML = '<div class="loading">Test completo in corso...</div>';
+            
+            let debugInfo = '=== DEBUG API ===\n\n';
+            
+            // Test API principale
+            debugInfo += '1. TEST API PRINCIPALE:\n';
+            debugInfo += 'URL: ' + API_URL + '\n';
             
             try {
+                const startTime = Date.now();
                 const response = await fetch(API_URL);
-                const data = await response.json();
+                const endTime = Date.now();
                 
-                resultDiv.innerHTML = `
-                    <div class="success">
-                        <strong>✓ API Funziona!</strong><br>
-                        Dati ricevuti: ${JSON.stringify(data.data)}
-                    </div>
-                `;
-                console.log('Dati API:', data);
-            } catch (error) {
-                console.error('Errore API principale:', error);
+                debugInfo += '✓ Connessione riuscita\n';
+                debugInfo += 'Tempo risposta: ' + (endTime - startTime) + 'ms\n';
+                debugInfo += 'Status: ' + response.status + ' ' + response.statusText + '\n';
+                debugInfo += 'Content-Type: ' + response.headers.get('content-type') + '\n';
                 
-                // Prova con API alternativa
+                const text = await response.text();
+                debugInfo += 'Dimensione risposta: ' + text.length + ' caratteri\n\n';
+                
+                debugInfo += 'RISPOSTA RAW:\n' + text + '\n\n';
+                
+                // Prova a parsare come JSON
                 try {
-                    resultDiv.innerHTML = '<div class="loading">Provo API alternativa...</div>';
-                    const response = await fetch(API_URL_ALT);
-                    const data = await response.json();
+                    const data = JSON.parse(text);
+                    debugInfo += '✓ JSON parsato correttamente\n';
+                    debugInfo += 'Struttura dati: ' + JSON.stringify(data, null, 2) + '\n';
                     
-                    resultDiv.innerHTML = `
-                        <div class="success">
-                            <strong>✓ API Alternativa Funziona!</strong><br>
-                            Dati ricevuti: ${JSON.stringify(data.data)}
-                        </div>
-                    `;
-                    console.log('Dati API alternativa:', data);
-                } catch (fallbackError) {
-                    resultDiv.innerHTML = `
-                        <div class="error">
-                            <strong>✗ Errore API</strong><br>
-                            Errore principale: ${error.message}<br>
-                            Errore alternativa: ${fallbackError.message}
-                        </div>
-                    `;
+                    // Cerca i dati
+                    if (data.data) {
+                        debugInfo += '✓ Trovato campo "data"\n';
+                        debugInfo += 'Contenuto di "data": ' + JSON.stringify(data.data, null, 2) + '\n';
+                    } else {
+                        debugInfo += '✗ Campo "data" non trovato\n';
+                        // Cerca altri campi possibili
+                        debugInfo += 'Campi disponibili: ' + Object.keys(data).join(', ') + '\n';
+                    }
+                    
+                } catch (jsonError) {
+                    debugInfo += '✗ Errore parsing JSON: ' + jsonError.message + '\n';
                 }
+                
+            } catch (error) {
+                debugInfo += '✗ Errore connessione: ' + error.message + '\n\n';
             }
+            
+            // Test API alternativa
+            debugInfo += '2. TEST API ALTERNATIVA:\n';
+            debugInfo += 'URL: ' + API_URL_ALT + '\n';
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(API_URL_ALT);
+                const endTime = Date.now();
+                
+                debugInfo += '✓ Connessione riuscita\n';
+                debugInfo += 'Tempo risposta: ' + (endTime - startTime) + 'ms\n';
+                debugInfo += 'Status: ' + response.status + ' ' + response.statusText + '\n';
+                debugInfo += 'Content-Type: ' + response.headers.get('content-type') + '\n';
+                
+                const text = await response.text();
+                debugInfo += 'Dimensione risposta: ' + text.length + ' caratteri\n\n';
+                
+                debugInfo += 'RISPOSTA RAW:\n' + text + '\n\n';
+                
+                // Prova a parsare come JSON
+                try {
+                    const data = JSON.parse(text);
+                    debugInfo += '✓ JSON parsato correttamente\n';
+                    debugInfo += 'Struttura dati: ' + JSON.stringify(data, null, 2) + '\n';
+                    
+                    if (data.data) {
+                        debugInfo += '✓ Trovato campo "data"\n';
+                        debugInfo += 'Contenuto di "data": ' + JSON.stringify(data.data, null, 2) + '\n';
+                    } else {
+                        debugInfo += '✗ Campo "data" non trovato\n';
+                        debugInfo += 'Campi disponibili: ' + Object.keys(data).join(', ') + '\n';
+                    }
+                    
+                } catch (jsonError) {
+                    debugInfo += '✗ Errore parsing JSON: ' + jsonError.message + '\n';
+                }
+                
+            } catch (error) {
+                debugInfo += '✗ Errore connessione: ' + error.message + '\n';
+            }
+            
+            resultDiv.innerHTML = '<div class="info">' + debugInfo + '</div>';
         }
 
-        async function testPlayer() {
-            const username = document.getElementById('playerUser').value;
-            const password = document.getElementById('playerPassword').value;
-            const resultDiv = document.getElementById('playerResult');
-            
-            resultDiv.innerHTML = '<div class="loading">Verifica in corso...</div>';
+        async function testMainAPI() {
+            const resultDiv = document.getElementById('mainAPIResult');
+            resultDiv.innerHTML = '<div class="loading">Test API principale...</div>';
             
             try {
                 const response = await fetch(API_URL);
-                const data = await response.json();
+                const text = await response.text();
                 
-                const player = data.data.find(item => 
-                    item.user && item.password && 
-                    item.user === username && item.password === password
-                );
+                let result = 'Status: ' + response.status + '\n';
+                result += 'Content-Type: ' + response.headers.get('content-type') + '\n\n';
+                result += 'Risposta completa:\n' + text;
                 
-                if (player) {
-                    resultDiv.innerHTML = `
-                        <div class="success">
-                            <strong>✓ Credenziali Player Valide!</strong><br>
-                            Username: ${player.user}<br>
-                            Unità: ${player.unita || 'N/A'}<br>
-                            Dati completi: ${JSON.stringify(player)}
-                        </div>
-                    `;
-                } else {
-                    resultDiv.innerHTML = `
-                        <div class="error">
-                            <strong>✗ Credenziali Player Non Valide</strong><br>
-                            Username: ${username}<br>
-                            Password: ${password}
-                        </div>
-                    `;
+                resultDiv.innerHTML = '<div class="info">' + result + '</div>';
+                
+                // Prova a vedere la struttura
+                try {
+                    const data = JSON.parse(text);
+                    console.log('API Principale - Dati parsati:', data);
+                } catch (e) {
+                    console.log('API Principale - Non è JSON valido');
                 }
+                
             } catch (error) {
-                resultDiv.innerHTML = `
-                    <div class="error">
-                        <strong>✗ Errore durante la verifica</strong><br>
-                        ${error.message}
-                    </div>
-                `;
+                resultDiv.innerHTML = '<div class="error">Errore: ' + error.message + '</div>';
             }
         }
 
-        async function testAdmin() {
-            const username = document.getElementById('adminUser').value;
-            const password = document.getElementById('adminPassword').value;
-            const resultDiv = document.getElementById('adminResult');
-            
-            resultDiv.innerHTML = '<div class="loading">Verifica in corso...</div>';
+        async function testAltAPI() {
+            const resultDiv = document.getElementById('altAPIResult');
+            resultDiv.innerHTML = '<div class="loading">Test API alternativa...</div>';
             
             try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
+                const response = await fetch(API_URL_ALT);
+                const text = await response.text();
                 
-                const admin = data.data.find(item => 
-                    item.user_admin && item.password_admin && 
-                    item.user_admin === username && item.password_admin === password
-                );
+                let result = 'Status: ' + response.status + '\n';
+                result += 'Content-Type: ' + response.headers.get('content-type') + '\n\n';
+                result += 'Risposta completa:\n' + text;
                 
-                if (admin) {
-                    resultDiv.innerHTML = `
-                        <div class="success">
-                            <strong>✓ Credenziali Admin Valide!</strong><br>
-                            Username: ${admin.user_admin}<br>
-                            Dati completi: ${JSON.stringify(admin)}
-                        </div>
-                    `;
-                } else {
-                    resultDiv.innerHTML = `
-                        <div class="error">
-                            <strong>✗ Credenziali Admin Non Valide</strong><br>
-                            Username: ${username}<br>
-                            Password: ${password}
-                        </div>
-                    `;
+                resultDiv.innerHTML = '<div class="info">' + result + '</div>';
+                
+                // Prova a vedere la struttura
+                try {
+                    const data = JSON.parse(text);
+                    console.log('API Alternativa - Dati parsati:', data);
+                } catch (e) {
+                    console.log('API Alternativa - Non è JSON valido');
                 }
+                
             } catch (error) {
-                resultDiv.innerHTML = `
-                    <div class="error">
-                        <strong>✗ Errore durante la verifica</strong><br>
-                        ${error.message}
-                    </div>
-                `;
+                resultDiv.innerHTML = '<div class="error">Errore: ' + error.message + '</div>';
             }
         }
 
-        async function testUnit() {
-            const username = document.getElementById('unitUser').value;
-            const resultDiv = document.getElementById('unitResult');
+        async function testRawResponse() {
+            const resultDiv = document.getElementById('rawResult');
+            resultDiv.innerHTML = '<div class="loading">Test risposta RAW...</div>';
             
-            resultDiv.innerHTML = '<div class="loading">Ricerca unità...</div>';
+            // Test con diversi metodi
+            const methods = [
+                { name: 'GET semplice', url: API_URL },
+                { name: 'GET con cache bust', url: API_URL + '?t=' + Date.now() },
+                { name: 'API Alternativa', url: API_URL_ALT }
+            ];
             
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
+            let results = '';
+            
+            for (const method of methods) {
+                results += '=== ' + method.name + ' ===\n';
+                results += 'URL: ' + method.url + '\n';
                 
-                const player = data.data.find(item => item.user === username);
-                
-                if (player) {
-                    resultDiv.innerHTML = `
-                        <div class="success">
-                            <strong>✓ Player Trovato!</strong><br>
-                            Username: ${player.user}<br>
-                            Unità associata: ${player.unita || 'Nessuna unità'}<br>
-                            Dati completi: ${JSON.stringify(player)}
-                        </div>
-                    `;
-                } else {
-                    resultDiv.innerHTML = `
-                        <div class="error">
-                            <strong>✗ Player Non Trovato</strong><br>
-                            Username: ${username}
-                        </div>
-                    `;
+                try {
+                    const response = await fetch(method.url);
+                    const text = await response.text();
+                    
+                    results += 'Status: ' + response.status + '\n';
+                    results += 'Tipo: ' + response.headers.get('content-type') + '\n';
+                    results += 'Primi 500 caratteri:\n' + text.substring(0, 500) + '\n\n';
+                    
+                } catch (error) {
+                    results += 'Errore: ' + error.message + '\n\n';
                 }
-            } catch (error) {
-                resultDiv.innerHTML = `
-                    <div class="error">
-                        <strong>✗ Errore durante la ricerca</strong><br>
-                        ${error.message}
-                    </div>
-                `;
             }
+            
+            resultDiv.innerHTML = '<div class="info">' + results + '</div>';
         }
 
-        // Test automatico al caricamento della pagina
+        // Test automatico
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Pagina caricata - pronta per i test');
+            console.log('Debug tool caricato');
+            // testAPIDebug(); // Scommenta per test automatico
         });
     </script>
 </body>
