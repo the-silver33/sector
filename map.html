@@ -3,8 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mappa di Gioco - Strategia a Turni</title>
+    <title>Mappa Strategica - Gioco a Turni</title>
     <style>
+        /* I CSS rimangono identici, sono già corretti */
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #0f3460;
+            --highlight: #4cc9f0;
+            --danger: #e94560;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --info: #9b59b6;
+            --text: #e6e6e6;
+            --text-muted: #a5b1c2;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -13,203 +27,290 @@
         }
 
         body {
-            background-color: #1a1a2e;
-            color: #e6e6e6;
+            background: linear-gradient(135deg, var(--primary), #0d1137);
+            color: var(--text);
+            min-height: 100vh;
             padding: 20px;
+            overflow-x: hidden;
         }
 
         .container {
             display: flex;
             flex-direction: column;
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
-            gap: 20px;
+            gap: 25px;
         }
 
         header {
             text-align: center;
-            padding: 15px;
-            background: linear-gradient(135deg, #16213e, #0f3460);
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(76, 201, 240, 0.3);
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--highlight), var(--success), var(--warning), var(--danger), var(--info));
         }
 
         h1 {
-            font-size: 2.2rem;
+            font-size: 2.8rem;
             margin-bottom: 10px;
-            color: #4cc9f0;
+            background: linear-gradient(90deg, var(--highlight), var(--success));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
         }
 
         .game-area {
             display: flex;
-            gap: 20px;
+            gap: 25px;
+            min-height: 70vh;
         }
 
         .controls {
-            flex: 0 0 250px;
-            background: #16213e;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            flex: 0 0 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .panel {
+            background: var(--secondary);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(76, 201, 240, 0.2);
         }
 
         .map-container {
             flex: 1;
-            background: #0f3460;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            overflow: auto;
-            max-height: 80vh;
+            background: var(--secondary);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(76, 201, 240, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .terrain-selector, .unit-selector {
-            margin-bottom: 25px;
+        .map-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(76, 201, 240, 0.3);
+        }
+
+        .map-title {
+            font-size: 1.5rem;
+            color: var(--highlight);
+        }
+
+        .map-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .map-grid-container {
+            flex: 1;
+            overflow: auto;
+            background: var(--accent);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(76, 201, 240, 0.2);
+        }
+
+        .map-grid {
+            display: grid;
+            grid-template-columns: repeat(40, 14px); /* Ridotto per performance */
+            grid-template-rows: repeat(30, 14px); /* Ridotto per performance */
+            gap: 1px;
+            background-color: #0a1930;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid var(--highlight);
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .cell {
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+
+        .cell:hover {
+            transform: scale(1.3);
+            z-index: 10;
+            box-shadow: 0 0 8px white;
+        }
+
+        .cell.occupied:hover::after {
+            content: attr(data-unit-name);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            z-index: 100;
         }
 
         h2 {
-            font-size: 1.4rem;
-            margin-bottom: 15px;
-            color: #4cc9f0;
-            border-bottom: 2px solid #4cc9f0;
-            padding-bottom: 5px;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--highlight);
+            border-bottom: 2px solid var(--highlight);
+            padding-bottom: 8px;
         }
 
         .terrain-options, .unit-options {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 12px;
         }
 
         .terrain-option, .unit-option {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px;
-            border-radius: 5px;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            border: 1px solid transparent;
         }
 
         .terrain-option:hover, .unit-option:hover {
-            background: rgba(76, 201, 240, 0.2);
+            background: rgba(76, 201, 240, 0.15);
+            transform: translateY(-2px);
         }
 
         .terrain-option.active, .unit-option.active {
-            background: rgba(76, 201, 240, 0.4);
-            border: 1px solid #4cc9f0;
+            background: rgba(76, 201, 240, 0.25);
+            border: 1px solid var(--highlight);
+            box-shadow: 0 4px 8px rgba(76, 201, 240, 0.3);
         }
 
         .terrain-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 3px;
-            border: 1px solid #ccc;
+            width: 24px;
+            height: 24px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .unit-icon {
-            width: 24px;
-            height: 24px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #0f3460;
-            border-radius: 3px;
+            background: var(--accent);
+            border-radius: 5px;
             font-weight: bold;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .action-buttons {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         button {
-            padding: 12px;
+            padding: 14px;
             border: none;
-            border-radius: 5px;
-            background: #4cc9f0;
-            color: #16213e;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--highlight), #3aa8d0);
+            color: var(--primary);
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
 
         button:hover {
-            background: #3aa8d0;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(-1px);
         }
 
         button.clear {
-            background: #e94560;
+            background: linear-gradient(135deg, var(--danger), #d1344f);
         }
 
-        button.clear:hover {
-            background: #d1344f;
+        button.save {
+            background: linear-gradient(135deg, var(--success), #27ae60);
         }
 
-        .map-grid {
-            display: grid;
-            grid-template-columns: repeat(80, 12px);
-            grid-template-rows: repeat(60, 12px);
-            gap: 1px;
-            background-color: #0a1930;
-            padding: 10px;
-            border-radius: 5px;
-            border: 2px solid #4cc9f0;
+        button.load {
+            background: linear-gradient(135deg, var(--info), #8e44ad);
         }
-
-        .cell {
-            width: 12px;
-            height: 12px;
-            border-radius: 1px;
-            cursor: pointer;
-            transition: all 0.1s;
-        }
-
-        .cell:hover {
-            transform: scale(1.2);
-            z-index: 10;
-            box-shadow: 0 0 5px white;
-        }
-
-        /* Terrain colors */
-        .terrain-sand { background-color: #e6c994; }
-        .terrain-water { background-color: #4a8fe7; }
-        .terrain-ground { background-color: #8b7355; }
-        .terrain-interest { background-color: #c44569; }
-        .terrain-port { background-color: #546de5; }
-
-        /* Unit colors */
-        .unit-infantry { background-color: #2ecc71; }
-        .unit-motorized { background-color: #f39c12; }
-        .unit-armored { background-color: #e74c3c; }
-        .unit-artillery { background-color: #9b59b6; }
 
         .info-panel {
-            background: #16213e;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-top: auto;
         }
 
         .coordinates {
-            font-family: monospace;
-            font-size: 1.1rem;
-            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: var(--accent);
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(76, 201, 240, 0.3);
         }
 
         .instructions {
             margin-top: 20px;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            color: #a5b1c2;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-muted);
         }
 
         .instructions h3 {
-            color: #4cc9f0;
-            margin-bottom: 8px;
+            color: var(--highlight);
+            margin-bottom: 12px;
+            font-size: 1.1rem;
         }
 
         .instructions ul {
@@ -217,10 +318,141 @@
         }
 
         .instructions li {
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            position: relative;
         }
 
-        @media (max-width: 1200px) {
+        .instructions li::before {
+            content: '▸';
+            color: var(--highlight);
+            position: absolute;
+            left: -15px;
+        }
+
+        .game-status {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(76, 201, 240, 0.3);
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .status-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--highlight);
+        }
+
+        .status-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Terrain colors */
+        .terrain-sand { background: linear-gradient(135deg, #e6c994, #d4b97d); }
+        .terrain-water { background: linear-gradient(135deg, #4a8fe7, #3a7fd8); }
+        .terrain-ground { background: linear-gradient(135deg, #8b7355, #7a6344); }
+        .terrain-interest { background: linear-gradient(135deg, #c44569, #b33458); }
+        .terrain-port { background: linear-gradient(135deg, #546de5, #435cd4); }
+        .terrain-mountain { background: linear-gradient(135deg, #7f8c8d, #6d7b7c); }
+        .terrain-forest { background: linear-gradient(135deg, #27ae60, #219653); }
+
+        /* Unit colors */
+        .unit-infantry { background: linear-gradient(135deg, var(--success), #27ae60); }
+        .unit-motorized { background: linear-gradient(135deg, var(--warning), #e67e22); }
+        .unit-armored { background: linear-gradient(135deg, var(--danger), #e74c3c); }
+        .unit-artillery { background: linear-gradient(135deg, var(--info), #8e44ad); }
+
+        .zoom-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .zoom-btn {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 50%;
+            font-size: 1.2rem;
+        }
+
+        .current-zoom {
+            min-width: 50px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .player-turn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            background: var(--accent);
+            border-radius: 20px;
+            border: 1px solid rgba(76, 201, 240, 0.3);
+        }
+
+        .turn-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .unit-stats {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--accent);
+            border-radius: 8px;
+            border: 1px solid rgba(76, 201, 240, 0.3);
+        }
+
+        .unit-stats h3 {
+            color: var(--highlight);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: var(--highlight);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(76, 201, 240, 0.2);
+        }
+
+        @media (max-width: 1400px) {
             .game-area {
                 flex-direction: column;
             }
@@ -229,13 +461,21 @@
                 flex: 0 0 auto;
             }
             
-            .map-container {
-                overflow: auto;
+            .map-grid {
+                grid-template-columns: repeat(40, 12px);
+                grid-template-rows: repeat(30, 12px);
             }
             
+            .cell {
+                width: 12px;
+                height: 12px;
+            }
+        }
+
+        @media (max-width: 1200px) {
             .map-grid {
-                grid-template-columns: repeat(80, 10px);
-                grid-template-rows: repeat(60, 10px);
+                grid-template-columns: repeat(40, 10px);
+                grid-template-rows: repeat(30, 10px);
             }
             
             .cell {
@@ -243,18 +483,38 @@
                 height: 10px;
             }
         }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--accent);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--highlight);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3aa8d0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Mappa di Gioco - Strategia a Turni</h1>
-            <p>Mappa 60x80 - Modifica terreno e posiziona unità</p>
+            <h1>Mappa Strategica - Gioco a Turni</h1>
+            <p class="subtitle">Crea e personalizza la tua mappa di gioco 30x40. Modifica il terreno, posiziona unità militari e prepara la tua strategia per la battaglia.</p>
         </header>
         
         <div class="game-area">
             <div class="controls">
-                <div class="terrain-selector">
+                <div class="panel">
                     <h2>Tipi di Terreno</h2>
                     <div class="terrain-options">
                         <div class="terrain-option active" data-terrain="sand">
@@ -269,6 +529,14 @@
                             <div class="terrain-color terrain-ground"></div>
                             <span>Terreno</span>
                         </div>
+                        <div class="terrain-option" data-terrain="mountain">
+                            <div class="terrain-color terrain-mountain"></div>
+                            <span>Montagna</span>
+                        </div>
+                        <div class="terrain-option" data-terrain="forest">
+                            <div class="terrain-color terrain-forest"></div>
+                            <span>Foresta</span>
+                        </div>
                         <div class="terrain-option" data-terrain="interest">
                             <div class="terrain-color terrain-interest"></div>
                             <span>Punti di Interesse</span>
@@ -280,57 +548,148 @@
                     </div>
                 </div>
                 
-                <div class="unit-selector">
+                <div class="panel">
                     <h2>Unità Militari</h2>
                     <div class="unit-options">
-                        <div class="unit-option" data-unit="infantry">
+                        <div class="unit-option" data-unit="infantry" data-unit-name="Fanteria">
                             <div class="unit-icon unit-infantry">I</div>
                             <span>Fanteria</span>
                         </div>
-                        <div class="unit-option" data-unit="motorized">
+                        <div class="unit-option" data-unit="motorized" data-unit-name="Motorizzata">
                             <div class="unit-icon unit-motorized">M</div>
                             <span>Motorizzata</span>
                         </div>
-                        <div class="unit-option" data-unit="armored">
+                        <div class="unit-option" data-unit="armored" data-unit-name="Corazzata">
                             <div class="unit-icon unit-armored">C</div>
                             <span>Corazzata</span>
                         </div>
-                        <div class="unit-option" data-unit="artillery">
+                        <div class="unit-option" data-unit="artillery" data-unit-name="Artiglieria">
                             <div class="unit-icon unit-artillery">A</div>
                             <span>Artiglieria</span>
                         </div>
                     </div>
+
+                    <div class="unit-stats">
+                        <h3>Statistiche Unità</h3>
+                        <div class="stats-grid" id="unit-stats">
+                            <div class="stat">
+                                <span>Movimento:</span>
+                                <span class="stat-value" id="movement-value">-</span>
+                            </div>
+                            <div class="stat">
+                                <span>Attacco:</span>
+                                <span class="stat-value" id="attack-value">-</span>
+                            </div>
+                            <div class="stat">
+                                <span>Difesa:</span>
+                                <span class="stat-value" id="defense-value">-</span>
+                            </div>
+                            <div class="stat">
+                                <span>Raggio:</span>
+                                <span class="stat-value" id="range-value">-</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="action-buttons">
-                    <button id="clear-cell">Rimuovi Unità/Terreno</button>
-                    <button id="clear-all">Pulisci Mappa</button>
-                    <button id="save-map">Salva Mappa</button>
-                    <button id="load-map">Carica Mappa</button>
+                <div class="panel">
+                    <h2>Azioni</h2>
+                    <div class="action-buttons">
+                        <button id="clear-cell">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"></path>
+                            </svg>
+                            Rimuovi Unità/Terreno
+                        </button>
+                        <button id="clear-all" class="clear">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                            </svg>
+                            Pulisci Mappa
+                        </button>
+                        <button id="save-map" class="save">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"></path>
+                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                <polyline points="7 3 7 8 15 8"></polyline>
+                            </svg>
+                            Salva Mappa
+                        </button>
+                        <button id="load-map" class="load">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Carica Mappa
+                        </button>
+                    </div>
                 </div>
                 
-                <div class="info-panel">
+                <div class="panel info-panel">
                     <div class="coordinates" id="coordinates">Coordinate: (0, 0)</div>
+                    
+                    <div class="game-status">
+                        <div class="status-item">
+                            <div class="status-value" id="unit-count">0</div>
+                            <div class="status-label">Unità Piazzate</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-value" id="turn-count">1</div>
+                            <div class="status-label">Turno</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="player-turn">
+                                <div class="turn-indicator"></div>
+                                <span>Giocatore 1</span>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="instructions">
-                        <h3>Istruzioni:</h3>
+                        <h3>Istruzioni di Gioco</h3>
                         <ul>
                             <li>Seleziona un tipo di terreno e clicca sulla mappa per modificarlo</li>
                             <li>Seleziona un'unità e clicca sulla mappa per posizionarla</li>
-                            <li>Usa "Rimuovi" per eliminare unità o terreno</li>
+                            <li>Clicca su un'unità esistente per rimuoverla</li>
+                            <li>Usa "Rimuovi" per eliminare unità o terreno selezionati</li>
                             <li>Salva e carica la mappa per continuare in seguito</li>
+                            <li>Usa i controlli zoom per regolare la visualizzazione</li>
+                            <li>Passa il mouse sulle unità per vedere le statistiche</li>
                         </ul>
                     </div>
                 </div>
             </div>
             
             <div class="map-container">
-                <div class="map-grid" id="map-grid"></div>
+                <div class="map-header">
+                    <div class="map-title">Mappa di Gioco - Dimensione: 30x40</div>
+                    <div class="map-controls">
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" id="zoom-out">-</button>
+                            <div class="current-zoom" id="zoom-level">100%</div>
+                            <button class="zoom-btn" id="zoom-in">+</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="map-grid-container">
+                    <div class="map-grid" id="map-grid"></div>
+                </div>
             </div>
         </div>
+        
+        <footer>
+            <p>Mappa di Gioco per Strategia a Turni | Creato per un'esperienza di gioco immersiva | &copy; 2023</p>
+        </footer>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Dimensioni della mappa (ridotte per performance)
+            const MAP_WIDTH = 40;
+            const MAP_HEIGHT = 30;
+            
             const mapGrid = document.getElementById('map-grid');
             const coordinatesDisplay = document.getElementById('coordinates');
             const terrainOptions = document.querySelectorAll('.terrain-option');
@@ -339,25 +698,50 @@
             const clearAllButton = document.getElementById('clear-all');
             const saveMapButton = document.getElementById('save-map');
             const loadMapButton = document.getElementById('load-map');
+            const zoomInButton = document.getElementById('zoom-in');
+            const zoomOutButton = document.getElementById('zoom-out');
+            const zoomLevelDisplay = document.getElementById('zoom-level');
+            const unitCountDisplay = document.getElementById('unit-count');
+            const turnCountDisplay = document.getElementById('turn-count');
+            const movementValue = document.getElementById('movement-value');
+            const attackValue = document.getElementById('attack-value');
+            const defenseValue = document.getElementById('defense-value');
+            const rangeValue = document.getElementById('range-value');
             
             let selectedTerrain = 'sand';
             let selectedUnit = null;
             let mapData = [];
+            let currentZoom = 100;
+            let unitCount = 0;
+            let turnCount = 1;
+            
+            // Statistiche delle unità
+            const unitStats = {
+                infantry: { movement: 2, attack: 5, defense: 4, range: 1 },
+                motorized: { movement: 6, attack: 4, defense: 3, range: 1 },
+                armored: { movement: 4, attack: 8, defense: 6, range: 1 },
+                artillery: { movement: 2, attack: 7, defense: 2, range: 3 }
+            };
             
             // Inizializza la mappa
             function initializeMap() {
+                console.log("Inizializzazione mappa...");
                 mapGrid.innerHTML = '';
                 mapData = [];
+                unitCount = 0;
+                updateUnitCount();
                 
-                for (let y = 0; y < 60; y++) {
+                // Crea la griglia
+                for (let y = 0; y < MAP_HEIGHT; y++) {
                     const row = [];
-                    for (let x = 0; x < 80; x++) {
+                    for (let x = 0; x < MAP_WIDTH; x++) {
                         const cell = document.createElement('div');
                         cell.className = 'cell terrain-ground';
                         cell.dataset.x = x;
                         cell.dataset.y = y;
                         cell.dataset.terrain = 'ground';
                         
+                        // Aggiungi event listener
                         cell.addEventListener('click', handleCellClick);
                         cell.addEventListener('mouseover', handleCellHover);
                         
@@ -370,42 +754,129 @@
                     }
                     mapData.push(row);
                 }
+                
+                console.log("Mappa inizializzata con", MAP_WIDTH * MAP_HEIGHT, "celle");
+                
+                // Aggiungi elementi di esempio dopo che la mappa è pronta
+                setTimeout(addSampleElements, 100);
+            }
+            
+            // Aggiunge alcuni elementi di esempio alla mappa
+            function addSampleElements() {
+                console.log("Aggiunta elementi di esempio...");
+                
+                // Aggiungi un lago
+                for (let y = 10; y < 15; y++) {
+                    for (let x = 15; x < 25; x++) {
+                        updateCellTerrain(x, y, 'water');
+                    }
+                }
+                
+                // Aggiungi alcune montagne
+                for (let y = 3; y < 8; y++) {
+                    for (let x = 5; x < 10; x++) {
+                        if (Math.random() > 0.7) {
+                            updateCellTerrain(x, y, 'mountain');
+                        }
+                    }
+                }
+                
+                // Aggiungi una foresta
+                for (let y = 20; y < 25; y++) {
+                    for (let x = 30; x < 37; x++) {
+                        if (Math.random() > 0.5) {
+                            updateCellTerrain(x, y, 'forest');
+                        }
+                    }
+                }
+                
+                // Aggiungi un porto
+                updateCellTerrain(8, 22, 'port');
+                
+                // Aggiungi un punto di interesse
+                updateCellTerrain(35, 7, 'interest');
+                
+                console.log("Elementi di esempio aggiunti");
+            }
+            
+            // Aggiorna il terreno di una cella
+            function updateCellTerrain(x, y, terrain) {
+                if (y >= 0 && y < MAP_HEIGHT && x >= 0 && x < MAP_WIDTH) {
+                    mapData[y][x].terrain = terrain;
+                    if (!mapData[y][x].unit) {
+                        mapData[y][x].element.className = `cell terrain-${terrain}`;
+                    } else {
+                        mapData[y][x].element.className = `cell terrain-${terrain} unit-${mapData[y][x].unit}`;
+                        mapData[y][x].element.dataset.unitName = getUnitName(mapData[y][x].unit);
+                    }
+                    mapData[y][x].element.dataset.terrain = terrain;
+                }
             }
             
             // Gestisce il click su una cella
             function handleCellClick(e) {
-                const cell = e.target;
+                const cell = e.currentTarget;
                 const x = parseInt(cell.dataset.x);
                 const y = parseInt(cell.dataset.y);
                 
+                console.log(`Clic su cella (${x}, ${y}) - Terreno: ${selectedTerrain}, Unità: ${selectedUnit}`);
+                
                 if (selectedUnit) {
-                    // Posiziona un'unità
+                    // Posiziona o rimuovi un'unità
                     if (mapData[y][x].unit) {
                         // Rimuovi unità esistente
                         mapData[y][x].unit = null;
                         cell.className = `cell terrain-${mapData[y][x].terrain}`;
+                        cell.removeAttribute('data-unit-name');
+                        unitCount--;
+                        console.log("Unità rimossa");
                     } else {
                         // Aggiungi nuova unità
                         mapData[y][x].unit = selectedUnit;
                         cell.className = `cell terrain-${mapData[y][x].terrain} unit-${selectedUnit}`;
+                        cell.dataset.unitName = getUnitName(selectedUnit);
+                        unitCount++;
+                        console.log("Unità aggiunta:", selectedUnit);
                     }
-                } else {
+                    updateUnitCount();
+                } else if (selectedTerrain) {
                     // Cambia il terreno
-                    mapData[y][x].terrain = selectedTerrain;
-                    if (!mapData[y][x].unit) {
-                        cell.className = `cell terrain-${selectedTerrain}`;
-                    } else {
-                        cell.className = `cell terrain-${selectedTerrain} unit-${mapData[y][x].unit}`;
-                    }
+                    updateCellTerrain(x, y, selectedTerrain);
+                    console.log("Terreno cambiato in:", selectedTerrain);
                 }
             }
             
             // Gestisce il passaggio del mouse su una cella
             function handleCellHover(e) {
-                const cell = e.target;
+                const cell = e.currentTarget;
                 const x = parseInt(cell.dataset.x);
                 const y = parseInt(cell.dataset.y);
                 coordinatesDisplay.textContent = `Coordinate: (${x}, ${y})`;
+                
+                // Mostra le statistiche dell'unità se presente
+                if (mapData[y][x].unit) {
+                    const stats = unitStats[mapData[y][x].unit];
+                    movementValue.textContent = stats.movement;
+                    attackValue.textContent = stats.attack;
+                    defenseValue.textContent = stats.defense;
+                    rangeValue.textContent = stats.range;
+                } else {
+                    movementValue.textContent = '-';
+                    attackValue.textContent = '-';
+                    defenseValue.textContent = '-';
+                    rangeValue.textContent = '-';
+                }
+            }
+            
+            // Restituisce il nome dell'unità
+            function getUnitName(unitType) {
+                const unitOption = document.querySelector(`.unit-option[data-unit="${unitType}"]`);
+                return unitOption ? unitOption.dataset.unitName : unitType;
+            }
+            
+            // Aggiorna il conteggio delle unità
+            function updateUnitCount() {
+                unitCountDisplay.textContent = unitCount;
             }
             
             // Seleziona il terreno
@@ -416,6 +887,14 @@
                     selectedTerrain = this.dataset.terrain;
                     selectedUnit = null;
                     unitOptions.forEach(opt => opt.classList.remove('active'));
+                    
+                    console.log("Terreno selezionato:", selectedTerrain);
+                    
+                    // Reset statistiche unità
+                    movementValue.textContent = '-';
+                    attackValue.textContent = '-';
+                    defenseValue.textContent = '-';
+                    rangeValue.textContent = '-';
                 });
             });
             
@@ -427,20 +906,37 @@
                     selectedUnit = this.dataset.unit;
                     selectedTerrain = null;
                     terrainOptions.forEach(opt => opt.classList.remove('active'));
+                    
+                    console.log("Unità selezionata:", selectedUnit);
+                    
+                    // Mostra statistiche unità selezionata
+                    const stats = unitStats[selectedUnit];
+                    movementValue.textContent = stats.movement;
+                    attackValue.textContent = stats.attack;
+                    defenseValue.textContent = stats.defense;
+                    rangeValue.textContent = stats.range;
                 });
             });
             
-            // Pulisci cella
+            // Pulisci cella (modalità rimozione)
             clearCellButton.addEventListener('click', function() {
                 selectedTerrain = null;
                 selectedUnit = null;
                 terrainOptions.forEach(opt => opt.classList.remove('active'));
                 unitOptions.forEach(opt => opt.classList.remove('active'));
+                
+                console.log("Modalità rimozione attivata");
+                
+                // Reset statistiche unità
+                movementValue.textContent = '-';
+                attackValue.textContent = '-';
+                defenseValue.textContent = '-';
+                rangeValue.textContent = '-';
             });
             
             // Pulisci tutta la mappa
             clearAllButton.addEventListener('click', function() {
-                if (confirm('Sei sicuro di voler pulire tutta la mappa?')) {
+                if (confirm('Sei sicuro di voler pulire tutta la mappa? Tutti i dati andranno persi.')) {
                     initializeMap();
                 }
             });
@@ -454,38 +950,83 @@
                     }))
                 );
                 
-                localStorage.setItem('gameMap', JSON.stringify(mapToSave));
+                localStorage.setItem('advancedGameMap', JSON.stringify(mapToSave));
                 alert('Mappa salvata con successo!');
+                console.log("Mappa salvata");
             });
             
             // Carica mappa
             loadMapButton.addEventListener('click', function() {
-                const savedMap = localStorage.getItem('gameMap');
+                const savedMap = localStorage.getItem('advancedGameMap');
                 if (savedMap) {
-                    const parsedMap = JSON.parse(savedMap);
-                    
-                    for (let y = 0; y < 60; y++) {
-                        for (let x = 0; x < 80; x++) {
-                            if (parsedMap[y] && parsedMap[y][x]) {
-                                mapData[y][x].terrain = parsedMap[y][x].terrain;
-                                mapData[y][x].unit = parsedMap[y][x].unit;
-                                
-                                if (mapData[y][x].unit) {
-                                    mapData[y][x].element.className = `cell terrain-${mapData[y][x].terrain} unit-${mapData[y][x].unit}`;
-                                } else {
-                                    mapData[y][x].element.className = `cell terrain-${mapData[y][x].terrain}`;
+                    try {
+                        const parsedMap = JSON.parse(savedMap);
+                        unitCount = 0;
+                        
+                        for (let y = 0; y < MAP_HEIGHT; y++) {
+                            for (let x = 0; x < MAP_WIDTH; x++) {
+                                if (parsedMap[y] && parsedMap[y][x]) {
+                                    mapData[y][x].terrain = parsedMap[y][x].terrain;
+                                    mapData[y][x].unit = parsedMap[y][x].unit;
+                                    
+                                    if (mapData[y][x].unit) {
+                                        mapData[y][x].element.className = `cell terrain-${mapData[y][x].terrain} unit-${mapData[y][x].unit}`;
+                                        mapData[y][x].element.dataset.unitName = getUnitName(mapData[y][x].unit);
+                                        unitCount++;
+                                    } else {
+                                        mapData[y][x].element.className = `cell terrain-${mapData[y][x].terrain}`;
+                                        mapData[y][x].element.removeAttribute('data-unit-name');
+                                    }
+                                    mapData[y][x].element.dataset.terrain = mapData[y][x].terrain;
                                 }
                             }
                         }
+                        
+                        updateUnitCount();
+                        alert('Mappa caricata con successo!');
+                        console.log("Mappa caricata");
+                    } catch (error) {
+                        alert('Errore nel caricamento della mappa: formato non valido!');
+                        console.error("Errore caricamento mappa:", error);
                     }
-                    
-                    alert('Mappa caricata con successo!');
                 } else {
                     alert('Nessuna mappa salvata trovata!');
                 }
             });
             
+            // Controlli zoom
+            zoomInButton.addEventListener('click', function() {
+                if (currentZoom < 150) {
+                    currentZoom += 10;
+                    updateZoom();
+                }
+            });
+            
+            zoomOutButton.addEventListener('click', function() {
+                if (currentZoom > 70) {
+                    currentZoom -= 10;
+                    updateZoom();
+                }
+            });
+            
+            // Aggiorna lo zoom
+            function updateZoom() {
+                const cellSize = 14 * (currentZoom / 100);
+                mapGrid.style.gridTemplateColumns = `repeat(${MAP_WIDTH}, ${cellSize}px)`;
+                mapGrid.style.gridTemplateRows = `repeat(${MAP_HEIGHT}, ${cellSize}px)`;
+                
+                const cells = document.querySelectorAll('.cell');
+                cells.forEach(cell => {
+                    cell.style.width = `${cellSize}px`;
+                    cell.style.height = `${cellSize}px`;
+                });
+                
+                zoomLevelDisplay.textContent = `${currentZoom}%`;
+                console.log("Zoom aggiornato:", currentZoom + "%");
+            }
+            
             // Inizializza la mappa al caricamento
+            console.log("DOM caricato, inizializzazione in corso...");
             initializeMap();
         });
     </script>
