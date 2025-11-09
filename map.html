@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mappa di Gioco - Strategia a Turni</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #16213e, #0f3460);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: #4cc9f0;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 20px;
+        }
+
+        .controls {
+            flex: 0 0 250px;
+            background: #16213e;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .map-container {
+            flex: 1;
+            background: #0f3460;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            overflow: auto;
+            max-height: 80vh;
+        }
+
+        .terrain-selector, .unit-selector {
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #4cc9f0;
+            border-bottom: 2px solid #4cc9f0;
+            padding-bottom: 5px;
+        }
+
+        .terrain-options, .unit-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .terrain-option, .unit-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .terrain-option:hover, .unit-option:hover {
+            background: rgba(76, 201, 240, 0.2);
+        }
+
+        .terrain-option.active, .unit-option.active {
+            background: rgba(76, 201, 240, 0.4);
+            border: 1px solid #4cc9f0;
+        }
+
+        .terrain-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+
+        .unit-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f3460;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background: #4cc9f0;
+            color: #16213e;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #3aa8d0;
+            transform: translateY(-2px);
+        }
+
+        button.clear {
+            background: #e94560;
+        }
+
+        button.clear:hover {
+            background: #d1344f;
+        }
+
+        .map-grid {
+            display: grid;
+            grid-template-columns: repeat(80, 12px);
+            grid-template-rows: repeat(60, 12px);
+            gap: 1px;
+            background-color: #0a1930;
+            padding: 10px;
+            border-radius: 5px;
+            border: 2px solid #4cc9f0;
+        }
+
+        .cell {
+            width: 12px;
+            height: 12px;
+            border-radius: 1px;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .cell:hover {
+            transform: scale(1.2);
+            z-index: 10;
+            box-shadow: 0 0 5px white;
+        }
+
+        /* Terrain colors */
+        .terrain-sand { background-color: #e6c994; }
+        .terrain-water { background-color: #4a8fe7; }
+        .terrain-ground { background-color: #8b7355; }
+        .terrain-interest { background-color: #c44569; }
+        .terrain-port { background-color: #546de5; }
+
+        /* Unit colors */
+        .unit-infantry { background-color: #2ecc71; }
+        .unit-motorized { background-color: #f39c12; }
+        .unit-armored { background-color: #e74c3c; }
+        .unit-artillery { background-color: #9b59b6; }
+
+        .info-panel {
+            background: #16213e;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .coordinates {
+            font-family: monospace;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #a5b1c2;
+        }
+
+        .instructions h3 {
+            color: #4cc9f0;
+            margin-bottom: 8px;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 1200px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .controls {
+                flex: 0 0 auto;
+            }
+            
+            .map-container {
+                overflow: auto;
+            }
+            
+            .map-grid {
+                grid-template-columns: repeat(80, 10px);
+                grid-template-rows: repeat(60, 10px);
+            }
+            
+            .cell {
+                width: 10px;
+                height: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mappa di Gioco - Strategia a Turni</h1>
+            <p>Mappa 60x80 - Modifica terreno e posiziona unità</p>
+        </header>
+        
+        <div class="game-area">
+            <div class="controls">
+                <div class="terrain-selector">
+                    <h2>Tipi di Terreno</h2>
+                    <div class="terrain-options">
+                        <div class="terrain-option active" data-terrain="sand">
+                            <div class="terrain-color terrain-sand"></div>
+                            <span>Sabbia</span>
+                        </div>
+                        <div class="terrain-option" data-terrain="water">
+                            <div class="terrain-color terrain-water"></div>
+                            <span>Acqua</span>
+                        </div>
+                        <div class="terrain-option" data-terrain="ground">
+                            <div class="terrain-color terrain-ground"></div>
+                            <span>Terreno</span>
+                        </div>
+                        <div class="terrain-option" data-terrain="interest">
+                            <div class="terrain-color terrain-interest"></div>
+                            <span>Punti di Interesse</span>
+                        </div>
+                        <div class="terrain-option" data-terrain="port">
+                            <div class="terrain-color terrain-port"></div>
+                            <span>Porti</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="unit-selector">
+                    <h2>Unità Militari</h2>
+                    <div class="unit-options">
+                        <div class="unit-option" data-unit="infantry">
+                            <div class="unit-icon unit-infantry">I</div>
+                            <span>Fanteria</span>
+                        </div>
+                        <div class="unit-option" data-unit="motorized">
+                            <div class="unit-icon unit-motorized">M</div>
+                            <span>Motorizzata</span>
+                        </div>
+                        <div class="unit-option" data-unit="armored">
+                            <div class="unit-icon unit-armored">C</div>
+                            <span>Corazzata</span>
+                        </div>
+                        <div class="unit-option" data-unit="artillery">
+                            <div class="unit-icon unit-artillery">A</div>
+                            <span>Artiglieria</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="clear-cell">Rimuovi Unità/Terreno</button>
+                    <button id="clear-all">Pulisci Mappa</button>
+                    <button id="save-map">Salva Mappa</button>
+                    <button id="load-map">Carica Mappa</button>
+                </div>
+                
+                <div class="info-panel">
+                    <div class="coordinates" id="coordinates">Coordinate: (0, 0)</div>
+                    <div class="instructions">
+                        <h3>Istruzioni:</h3>
+                        <ul>
+                            <li>Seleziona un tipo di terreno e clicca sulla mappa per modificarlo</li>
+                            <li>Seleziona un'unità e clicca sulla mappa per posizionarla</li>
+                            <li>Usa "Rimuovi" per eliminare unità o terreno</li>
+                            <li>Salva e carica la mappa per continuare in seguito</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="map-container">
+                <div class="map-grid" id="map-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mapGrid = document.getElementById('map-grid');
+            const coordinatesDisplay = document.getElementById('coordinates');
+            const terrainOptions = document.querySelectorAll('.terrain-option');
+            const unitOptions = document.querySelectorAll('.unit-option');
+            const clearCellButton = document.getElementById('clear-cell');
+            const clearAllButton = document.getElementById('clear-all');
+            const saveMapButton = document.getElementById('save-map');
+            const loadMapButton = document.getElementById('load-map');
+            
+            let selectedTerrain = 'sand';
+            let selectedUnit = null;
+            let mapData = [];
+            
+            // Inizializza la mappa
+            function initializeMap() {
+                mapGrid.innerHTML = '';
+                mapData = [];
+                
+                for (let y = 0; y < 60; y++) {
+                    const row = [];
+                    for (let x = 0; x < 80; x++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell terrain-ground';
+                        cell.dataset.x = x;
+                        cell.dataset.y = y;
+                        cell.dataset.terrain = 'ground';
+                        
+                        cell.addEventListener('click', handleCellClick);
+                        cell.addEventListener('mouseover', handleCellHover);
+                        
+                        mapGrid.appendChild(cell);
+                        row.push({
+                            element: cell,
+                            terrain: 'ground',
+                            unit: null
+                        });
+                    }
+                    mapData.push(row);
+                }
+            }
+            
+            // Gestisce il click su una cella
+            function handleCellClick(e) {
+                const cell = e.target;
+                const x = parseInt(cell.dataset.x);
+                const y = parseInt(cell.dataset.y);
+                
+                if (selectedUnit) {
+                    // Posiziona un'unità
+                    if (mapData[y][x].unit) {
+                        // Rimuovi unità esistente
+                        mapData[y][x].unit = null;
+                        cell.className = `cell terrain-${mapData[y][x].terrain}`;
+                    } else {
+                        // Aggiungi nuova unità
+                        mapData[y][x].unit = selectedUnit;
+                        cell.className = `cell terrain-${mapData[y][x].terrain} unit-${selectedUnit}`;
+                    }
+                } else {
+                    // Cambia il terreno
+                    mapData[y][x].terrain = selectedTerrain;
+                    if (!mapData[y][x].unit) {
+                        cell.className = `cell terrain-${selectedTerrain}`;
+                    } else {
+                        cell.className = `cell terrain-${selectedTerrain} unit-${mapData[y][x].unit}`;
+                    }
+                }
+            }
+            
+            // Gestisce il passaggio del mouse su una cella
+            function handleCellHover(e) {
+                const cell = e.target;
+                const x = parseInt(cell.dataset.x);
+                const y = parseInt(cell.dataset.y);
+                coordinatesDisplay.textContent = `Coordinate: (${x}, ${y})`;
+            }
+            
+            // Seleziona il terreno
+            terrainOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    terrainOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedTerrain = this.dataset.terrain;
+                    selectedUnit = null;
+                    unitOptions.forEach(opt => opt.classList.remove('active'));
+                });
+            });
+            
+            // Seleziona l'unità
+            unitOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    unitOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedUnit = this.dataset.unit;
+                    selectedTerrain = null;
+                    terrainOptions.forEach(opt => opt.classList.remove('active'));
+                });
+            });
+            
+            // Pulisci cella
+            clearCellButton.addEventListener('click', function() {
+                selectedTerrain = null;
+                selectedUnit = null;
+                terrainOptions.forEach(opt => opt.classList.remove('active'));
+                unitOptions.forEach(opt => opt.classList.remove('active'));
+            });
+            
+            // Pulisci tutta la mappa
+            clearAllButton.addEventListener('click', function() {
+                if (confirm('Sei sicuro di voler pulire tutta la mappa?')) {
+                    initializeMap();
+                }
+            });
+            
+            // Salva mappa
+            saveMapButton.addEventListener('click', function() {
+                const mapToSave = mapData.map(row => 
+                    row.map(cell => ({
+                        terrain: cell.terrain,
+                        unit: cell.unit
+                    }))
+                );
+                
+                localStorage.setItem('gameMap', JSON.stringify(mapToSave));
+                alert('Mappa salvata con successo!');
+            });
+            
+            // Carica mappa
+            loadMapButton.addEventListener('click', function() {
+                const savedMap = localStorage.getItem('gameMap');
+                if (savedMap) {
+                    const parsedMap = JSON.parse(savedMap);
+                    
+                    for (let y = 0; y < 60; y++) {
+                        for (let x = 0; x < 80; x++) {
+                            if (parsedMap[y] && parsedMap[y][x]) {
+                                mapData[y][x].terrain = parsedMap[y][x].terrain;
+                                mapData[y][x].unit = parsedMap[y][x].unit;
+                                
+                                if (mapData[y][x].unit) {
+                                    mapData[y][x].element.className = `cell terrain-${mapData[y][x].terrain} unit-${mapData[y][x].unit}`;
+                                } else {
+                                    mapData[y][x].element.className = `cell terrain-${mapData[y][x].terrain}`;
+                                }
+                            }
+                        }
+                    }
+                    
+                    alert('Mappa caricata con successo!');
+                } else {
+                    alert('Nessuna mappa salvata trovata!');
+                }
+            });
+            
+            // Inizializza la mappa al caricamento
+            initializeMap();
+        });
+    </script>
+</body>
+</html>
