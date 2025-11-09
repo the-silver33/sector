@@ -3,118 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Definitivo Sistema Unità</title>
+    <title>Test Registrazione Unità</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
-        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
-        button { padding: 10px 15px; margin: 5px; cursor: pointer; border: none; border-radius: 3px; }
-        .btn-primary { background: #007cba; color: white; }
-        .btn-success { background: #28a745; color: white; }
-        .log { background: #f5f5f5; padding: 10px; border-radius: 3px; margin-top: 10px; font-family: monospace; font-size: 12px; }
-        .success { color: #28a745; }
-        .error { color: #dc3545; }
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #218838; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .debug { background: #e9ecef; padding: 10px; border-radius: 4px; margin-top: 10px; font-size: 12px; }
     </style>
 </head>
 <body>
-    <h1>🧪 Test Definitivo Sistema Unità</h1>
+    <h1>🎯 Test Registrazione Unità</h1>
+    <p>Inserisci i dati per testare la registrazione:</p>
 
-    <div class="test-section">
-        <h3>1. Test Directo (apre in nuova finestra)</h3>
-        <button onclick="testDirect()" class="btn-primary">Test URL Diretto</button>
-        <p><small>Questo aprirà l'URL direttamente per vedere se funziona</small></p>
-    </div>
-
-    <div class="test-section">
-        <h3>2. Test con Google Forms Workaround</h3>
-        <button onclick="testWithForm()" class="btn-primary">Test con Form Alternativo</button>
-    </div>
-
-    <div class="test-section">
-        <h3>3. Test Registrazione</h3>
-        <button onclick="testRegistration()" class="btn-success">Test Registrazione Unità</button>
-        <div id="registrationResult" class="log"></div>
-    </div>
-
-    <div class="test-section">
-        <h3>📊 Risultati Test</h3>
-        <div id="testResults" class="log">
-            Clicca i pulsanti per eseguire i test...
+    <form id="registrationForm">
+        <div class="form-group">
+            <label for="matricola">Matricola *</label>
+            <input type="text" id="matricola" value="TES-001" required pattern="[A-Z]{3}-\d+">
+            <small>Formato: ABC-123</small>
         </div>
-    </div>
+
+        <div class="form-group">
+            <label for="nick">Nick (Discord) *</label>
+            <input type="text" id="nick" value="test_user" required>
+        </div>
+
+        <div class="form-group">
+            <label for="tipo">Tipo Unità *</label>
+            <select id="tipo" required>
+                <option value="Fanteria">Fanteria</option>
+                <option value="Motorizzata">Motorizzata</option>
+                <option value="Corazzata">Corazzata</option>
+                <option value="Artiglieria">Artiglieria</option>
+            </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+                <label for="movimento">Movimento *</label>
+                <input type="number" id="movimento" value="2" min="1" max="10" required>
+            </div>
+            <div class="form-group">
+                <label for="visione">Visione *</label>
+                <input type="number" id="visione" value="1" min="1" max="10" required>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+                <label for="armatura">Armatura *</label>
+                <input type="number" id="armatura" value="1" min="1" max="10" required>
+            </div>
+            <div class="form-group">
+                <label for="rifornimenti">Rifornimenti *</label>
+                <input type="number" id="rifornimenti" value="3" min="1" max="10" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="componenti">Componenti *</label>
+            <textarea id="componenti" rows="3" required>Fucile d'Assalto – Perf. 1 | Range 3 | 2 danni | (3/3)</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" value="test123" required>
+        </div>
+
+        <button type="submit">Registra Unità</button>
+    </form>
+
+    <div id="result"></div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyLgS8rTrhKs3tufWo2Tm4zAyEMhWsW0mr-QPciSzNh33zuGgdCRjwPzuslhE5OMyDt/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyaP_Q2vAWxHaJyJRtyOh5pE_7PzpNZtmfVX-uQrmBJa7v_Jhg3RNa2s025dqE01V1Q/exec';
 
-        function logResult(message, type = 'info') {
-            const results = document.getElementById('testResults');
-            const time = new Date().toLocaleTimeString();
-            results.innerHTML += `<div class="${type}">[${time}] ${message}</div>`;
-        }
-
-        // 1. Test diretto - apre l'URL in nuova finestra
-        function testDirect() {
-            const testUrls = [
-                API_URL + '?sheet=Unità',
-                API_URL + '?sheet=UnitÀ', 
-                API_URL + '?sheet=Ordini'
-            ];
+        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            testUrls.forEach(url => {
-                window.open(url, '_blank');
-                logResult(`🔗 Aperto: ${url}`, 'info');
-            });
-        }
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div style="color: blue;">🔄 Invio in corso...</div>';
 
-        // 2. Test con approccio alternativo
-        async function testWithForm() {
-            logResult('🔄 Tentativo con fetch semplice...', 'info');
-            
-            try {
-                // Prova con diversi endpoint
-                const endpoints = [
-                    '?sheet=Unità',
-                    '?sheet=UnitÀ',
-                    '?sheet=Ordini',
-                    ''
-                ];
-                
-                for (const endpoint of endpoints) {
-                    const url = API_URL + endpoint;
-                    logResult(`🔍 Test: ${url}`, 'info');
-                    
-                    try {
-                        const response = await fetch(url, { 
-                            method: 'GET',
-                            mode: 'no-cors' // Accetta anche risposte non CORS
-                        });
-                        logResult(`✅ Richiesta inviata a: ${endpoint}`, 'success');
-                    } catch (error) {
-                        logResult(`❌ Errore: ${error.message}`, 'error');
-                    }
-                    
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-            } catch (error) {
-                logResult(`💥 Errore generale: ${error.message}`, 'error');
-            }
-        }
-
-        // 3. Test registrazione
-        async function testRegistration() {
-            const resultDiv = document.getElementById('registrationResult');
-            resultDiv.innerHTML = '🔄 Invio dati di registrazione...';
-            
-            const testData = {
-                matricola: 'TES-' + Math.floor(Math.random() * 1000),
-                nick: 'test_user_' + Date.now(),
-                tipo: 'Fanteria',
-                movimento: 2,
-                visione: 1,
-                armatura: 1,
-                rifornimenti: 3,
-                componenti: 'Fucile di Test',
-                password: 'test123'
+            const formData = {
+                matricola: document.getElementById('matricola').value,
+                nick: document.getElementById('nick').value,
+                tipo: document.getElementById('tipo').value,
+                movimento: parseInt(document.getElementById('movimento').value),
+                visione: parseInt(document.getElementById('visione').value),
+                armatura: parseInt(document.getElementById('armatura').value),
+                rifornimenti: parseInt(document.getElementById('rifornimenti').value),
+                componenti: document.getElementById('componenti').value,
+                password: document.getElementById('password').value
             };
+
+            console.log('Dati da inviare:', formData);
 
             try {
                 const response = await fetch(API_URL, {
@@ -124,41 +111,66 @@
                     },
                     body: JSON.stringify({
                         action: 'register',
-                        data: testData
+                        data: formData
                     })
                 });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
+
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+
                 const result = await response.json();
-                resultDiv.innerHTML = `
-                    <div class="success">
-                        <strong>✅ REGISTRAZIONE RIUSCITA!</strong><br>
-                        Messaggio: ${result.message}<br>
-                        Dati: ${JSON.stringify(testData)}
-                    </div>
-                `;
-                logResult('✅ Registrazione completata con successo!', 'success');
-                
+                console.log('Risposta API:', result);
+
+                if (result.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ REGISTRAZIONE RIUSCITA!</h3>
+                            <p><strong>Messaggio:</strong> ${result.message}</p>
+                            <p><strong>Unià creata con matricola:</strong> ${formData.matricola}</p>
+                            <div class="debug">
+                                <strong>Dati inviati:</strong><br>
+                                ${JSON.stringify(formData, null, 2)}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Resetta il form
+                    document.getElementById('matricola').value = 'TES-' + Math.floor(Math.random() * 1000);
+                    document.getElementById('nick').value = 'test_user_' + Date.now();
+                    
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ ERRORE NELLA REGISTRAZIONE</h3>
+                            <p><strong>Errore:</strong> ${result.error}</p>
+                            <div class="debug">
+                                <strong>Dati inviati:</strong><br>
+                                ${JSON.stringify(formData, null, 2)}<br><br>
+                                <strong>Risposta API:</strong><br>
+                                ${JSON.stringify(result, null, 2)}
+                            </div>
+                        </div>
+                    `;
+                }
+
             } catch (error) {
                 resultDiv.innerHTML = `
                     <div class="error">
-                        <strong>❌ ERRORE REGISTRAZIONE</strong><br>
-                        Errore: ${error.message}
+                        <h3>❌ ERRORE DI CONNESSIONE</h3>
+                        <p><strong>Errore:</strong> ${error.message}</p>
+                        <div class="debug">
+                            <strong>Dati che avremmo inviato:</strong><br>
+                            ${JSON.stringify(formData, null, 2)}
+                        </div>
                     </div>
                 `;
-                logResult(`❌ Errore registrazione: ${error.message}`, 'error');
+                console.error('Errore completo:', error);
             }
-        }
-
-        // Test iniziale
-        document.addEventListener('DOMContentLoaded', function() {
-            logResult('🚀 Sistema di test pronto');
-            logResult(`📡 URL API: ${API_URL}`);
-            logResult('💡 Suggerimento: Prova prima "Test URL Diretto" per verificare manualmente');
         });
+
+        // Genera matricola casuale all'avvio
+        document.getElementById('matricola').value = 'TES-' + Math.floor(Math.random() * 1000);
+        document.getElementById('nick').value = 'test_user_' + Date.now();
     </script>
 </body>
 </html>
