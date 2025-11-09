@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comando Strategico Militare</title>
     <style>
-        :root {
+            :root {
             --primary: #1a472a;
             --secondary: #2d3436;
             --accent: #2ecc71;
@@ -333,16 +333,7 @@
             list-style-type: none;
             margin-top: 0.5rem;
         }
-        
-        .component-item {
-            padding: 0.3rem 0;
-            border-bottom: 1px solid #3d4a4e;
-        }
-        
-        .required-field::after {
-            content: " *";
-            color: #e74c3c;
-        }
+ 
     </style>
 </head>
 <body>
@@ -612,10 +603,14 @@
             currentTurn: 1,
             turnStartDate: new Date().toISOString()
         };
-        const adminPassword = "123"; // In a real app, use proper authentication
+        
+        // API URLs
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzax_zbu_DO5YI-ZrDIQ4TocaCP_ACfpPqzHhEiKDw/dev';
+        const API_URL_ALT = 'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLj7NKo_YXXehHyAbh0Kr3SguoqO_hyHe1tf5ZIju7mbLiTNqy6n1pvVSzRbimOW_CQqLMwjx7Yq7IP97zvRfmSZeWwpI-ODWDSeLdKTobOa9dDSIDJsNSJ3L3HiaPBzCk0iQUrfV7vZArELDAV16ON5XBzy9gmFQ-yHNpO0dyoPlraYOlWTQRBev2TkF_jjnGoIK6G8eUyRyNvrP31F7XuWIcD0FDdOXv17MGgUx40U53t-HOMVFsM1x3h9L3WN-sLjuNabs4jJFX1KkRXfh-EtHG2dJA&lib=MLV1ks7wQQ37SnILDHqD1wVTcg6hxLEu9';
+        
         let isAdmin = localStorage.getItem('adminLoggedIn') === 'true' || false;
         
-        // DOM elements
+        // DOM elements (rimangono uguali)
         const unitForm = document.getElementById('unitForm');
         const orderForm = document.getElementById('orderForm');
         const unitList = document.getElementById('unitList');
@@ -644,6 +639,102 @@
         const tabs = document.querySelectorAll('.tab');
         const tabContents = document.querySelectorAll('.tab-content');
         
+        // Funzione per verificare le credenziali admin dall'API
+        async function verifyAdminCredentials(username, password) {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                // Cerca le credenziali admin nell'API
+                const adminUser = data.data.find(item => 
+                    item.user_admin && item.password_admin && 
+                    item.user_admin === username && item.password_admin === password
+                );
+                
+                return !!adminUser;
+            } catch (error) {
+                console.error('Errore nel verificare le credenziali admin:', error);
+                // Fallback: prova con l'API alternativa
+                try {
+                    const response = await fetch(API_URL_ALT);
+                    const data = await response.json();
+                    
+                    const adminUser = data.data.find(item => 
+                        item.user_admin && item.password_admin && 
+                        item.user_admin === username && item.password_admin === password
+                    );
+                    
+                    return !!adminUser;
+                } catch (fallbackError) {
+                    console.error('Errore anche con API alternativa:', fallbackError);
+                    return false;
+                }
+            }
+        }
+        
+        // Funzione per verificare le credenziali player dall'API
+        async function verifyPlayerCredentials(username, password) {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                // Cerca le credenziali player nell'API
+                const player = data.data.find(item => 
+                    item.user && item.password && 
+                    item.user === username && item.password === password
+                );
+                
+                return !!player;
+            } catch (error) {
+                console.error('Errore nel verificare le credenziali player:', error);
+                // Fallback: prova con l'API alternativa
+                try {
+                    const response = await fetch(API_URL_ALT);
+                    const data = await response.json();
+                    
+                    const player = data.data.find(item => 
+                        item.user && item.password && 
+                        item.user === username && item.password === password
+                    );
+                    
+                    return !!player;
+                } catch (fallbackError) {
+                    console.error('Errore anche con API alternativa:', fallbackError);
+                    return false;
+                }
+            }
+        }
+        
+        // Funzione per ottenere l'unità associata a un player
+        async function getPlayerUnit(username) {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                const player = data.data.find(item => 
+                    item.user && item.user === username
+                );
+                
+                return player ? player.unita : null;
+            } catch (error) {
+                console.error('Errore nel ottenere unità player:', error);
+                // Fallback
+                try {
+                    const response = await fetch(API_URL_ALT);
+                    const data = await response.json();
+                    
+                    const player = data.data.find(item => 
+                        item.user && item.user === username
+                    );
+                    
+                    return player ? player.unita : null;
+                } catch (fallbackError) {
+                    console.error('Errore anche con API alternativa:', fallbackError);
+                    return null;
+                }
+            }
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             updateTurnDisplay();
@@ -691,18 +782,19 @@
             
             // Force uppercase for matricola
             matricolaInput.addEventListener('input', function() {
-            // Mantieni solo lettere maiuscole, numeri e #
-            this.value = this.value.toUpperCase().replace(/[^A-Z0-9#]/g, '');
-            
-            // Inserisci automaticamente il # dopo 3 caratteri se non presente
-            if (this.value.length > 3 && !this.value.includes('#')) {
-                this.value = this.value.slice(0, 3) + '#' + this.value.slice(3);
-            }
-            
-            // Limita la lunghezza a 7 caratteri (ABC#123)
-            if (this.value.length > 7) {
-                this.value = this.value.slice(0, 7);
-            }
+                // Mantieni solo lettere maiuscole, numeri e #
+                this.value = this.value.toUpperCase().replace(/[^A-Z0-9#]/g, '');
+                
+                // Inserisci automaticamente il # dopo 3 caratteri se non presente
+                if (this.value.length > 3 && !this.value.includes('#')) {
+                    this.value = this.value.slice(0, 3) + '#' + this.value.slice(3);
+                }
+                
+                // Limita la lunghezza a 7 caratteri (ABC#123)
+                if (this.value.length > 7) {
+                    this.value = this.value.slice(0, 7);
+                }
+            });
         });
         
         function checkPasswordMatch() {
@@ -828,10 +920,12 @@
         }
         
         // Register new unit
-        unitForm.addEventListener('submit', function(e) {
+        unitForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const matricola = matricolaInput.value.trim();
+            const nickname = document.getElementById('nickname').value.trim();
+            const password = document.getElementById('password').value;
             
             // Validate matricola format
             if (!validateMatricola(matricola)) {
@@ -852,11 +946,25 @@
                 return;
             }
             
+            // Verifica le credenziali del player dall'API
+            const isValidPlayer = await verifyPlayerCredentials(nickname, password);
+            if (!isValidPlayer) {
+                showModal('Errore', 'Credenziali player non valide! Verifica username e password.');
+                return;
+            }
+            
+            // Ottieni l'unità associata al player dall'API
+            const playerUnit = await getPlayerUnit(nickname);
+            if (playerUnit && playerUnit !== matricola) {
+                showModal('Errore', `Questo player è associato all'unità: ${playerUnit}, non a ${matricola}`);
+                return;
+            }
+            
             matricolaError.style.display = 'none';
             
             const newUnit = {
                 matricola: matricola,
-                nickname: document.getElementById('nickname').value.trim(),
+                nickname: nickname,
                 rank: 'soldato', // Default rank, can be changed by admin
                 type: document.getElementById('unitType').value,
                 movement: parseInt(document.getElementById('movement').value),
@@ -865,7 +973,7 @@
                 supply: `0/${document.getElementById('supply').value}`, // Current/Max supply
                 components: document.getElementById('components').value.split('\n').map(c => c.trim()).filter(c => c),
                 lore: document.getElementById('lore').value.trim(),
-                password: document.getElementById('password').value,
+                password: password,
                 status: 'pending-approval', // Needs admin approval
                 position: 'non ancora schierato',
                 orders: [],
@@ -893,7 +1001,7 @@
         });
         
         // Send orders
-        orderForm.addEventListener('submit', function(e) {
+        orderForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const unitId = document.getElementById('unitId').value;
@@ -909,9 +1017,10 @@
                 return;
             }
             
-            // Verify password
-            if (unit.password !== password) {
-                showModal('Errore', 'Password errata per questa unità!');
+            // Verifica le credenziali del player dall'API
+            const isValidPlayer = await verifyPlayerCredentials(unit.nickname, password);
+            if (!isValidPlayer) {
+                showModal('Errore', 'Credenziali non valide per questa unità!');
                 return;
             }
             
@@ -1100,14 +1209,16 @@
         }
         
         // Admin login
-        adminLoginForm.addEventListener('submit', function(e) {
+        adminLoginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const username = document.getElementById('adminUsername').value.trim();
             const password = document.getElementById('adminPassword').value;
             
-            // Very basic admin authentication (in a real app, use proper authentication)
-            if (username === 'admin' && password === adminPassword) {
+            // Verifica le credenziali admin dall'API
+            const isValidAdmin = await verifyAdminCredentials(username, password);
+            
+            if (isValidAdmin) {
                 isAdmin = true;
                 adminPanel.style.display = 'block';
                 adminLoginForm.style.display = 'none';
@@ -1117,7 +1228,7 @@
                 updateAdminEditSelect();
                 localStorage.setItem('adminLoggedIn', 'true');
             } else {
-                showModal('Accesso Negato', 'Credenziali non valide');
+                showModal('Accesso Negato', 'Credenziali non valide per il Comando Supremo');
             }
         });
         
@@ -1283,7 +1394,7 @@
                 showModal('Turno Resettato', 'Il conteggio dei turni è stato resettato a 1.');
             }
         }
-    });
     </script>
 </body>
 </html>
+<!-- 1400 -->
