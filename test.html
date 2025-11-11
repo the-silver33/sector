@@ -439,7 +439,7 @@
         // URL DELLE API
         const API_URL = 'https://script.google.com/macros/s/AKfycbzOnva7d51fQGtk6tEB0Wk-1GqyqLSXbuapSf32Hqu29uaIIhExwq07F9sHITYxagI/exec';
         const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdl4rtf7gXKCmJJgcePMJ-EE21XChmf14OX4vqkdqJ9zUXy6A/formResponse';
-        const FORM_FIELD_ID = 'entry.1167099953'; // ID del campo del tuo form
+        const FORM_FIELD_ID = 'entry.1167099953'; // ID CORRETTO TROVATO!
 
         let allUnits = [];
         let approvedUnits = [];
@@ -449,7 +449,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadAllData();
             setupEventListeners();
-            showNotification('Sistema caricato! Usa Google Forms per inviare dati.', 'success');
+            showNotification('Sistema caricato! ID campo trovato: ' + FORM_FIELD_ID, 'success');
         });
 
         function setupEventListeners() {
@@ -502,7 +502,7 @@
             });
         }
 
-        // CARICAMENTO DATI con JSONP (FUNZIONA)
+        // CARICAMENTO DATI con JSONP
         function loadAllData() {
             showNotification('🔄 Caricamento dati in corso...', 'warning');
             
@@ -537,7 +537,6 @@
                 
                 document.head.appendChild(script);
 
-                // Timeout
                 setTimeout(() => {
                     if (window[callbackName]) {
                         showNotification('❌ Timeout caricamento dati', 'error');
@@ -548,7 +547,7 @@
             });
         }
 
-        // INVIO DATI con Google Forms (FUNZIONA)
+        // INVIO DATI con Google Forms - VERSIONE CORRETTA
         async function sendData(action, data, successMessage = 'Operazione completata') {
             showNotification('📨 Invio dati via Google Forms...', 'warning');
             
@@ -556,7 +555,7 @@
                 await sendViaGoogleForms(action, data);
                 showNotification('✅ ' + successMessage, 'success');
                 
-                // Ricarica i dati dopo 3 secondi per vedere le modifiche
+                // Ricarica i dati dopo 3 secondi
                 setTimeout(loadAllData, 3000);
                 return true;
                 
@@ -568,116 +567,23 @@
 
         async function sendViaGoogleForms(action, data) {
             return new Promise((resolve, reject) => {
-                // Crea un form nascosto
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = FORM_URL;
                 form.target = 'hiddenFrame';
                 form.style.display = 'none';
 
-                // Prepara i dati
-                const payload = JSON.stringify({
-                    action: action,
-                    data: data
-                });
-
-                // Crea il campo input con l'ID corretto del form
-                const input = document.createElement('input');
-                input.name = FORM_FIELD_ID;
-                input.value = payload;
-                form.appendChild(input);
-
-                // Crea iframe nascosto per la risposta
-                let iframe = document.getElementById('hiddenFrame');
-                if (!iframe) {
-                    iframe = document.createElement('iframe');
-                    iframe.name = 'hiddenFrame';
-                    iframe.id = 'hiddenFrame';
-                    iframe.style.display = 'none';
-                    document.body.appendChild(iframe);
-                }
-
-                // Gestisce il completamento dell'invio
-                iframe.onload = function() {
-                    resolve(true);
-                    // Non rimuovere il form immediatamente per evitare errori
-                    setTimeout(() => {
-                        if (form.parentNode) {
-                            document.body.removeChild(form);
-                        }
-                    }, 1000);
-                };
-
-                document.body.appendChild(form);
-                form.submit();
-
-                // Timeout di sicurezza
-                setTimeout(() => {
-                    resolve(true); // Assume successo anche con timeout
-                }, 5000);
-            });
-        }
-
-        // REGISTRAZIONE UNITÀ
-        async function handleRegistration() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (password !== confirmPassword) {
-                showNotification('Le password non coincidono', 'error');
-                return;
-            }
-
-            // Controlla se la matricola esiste già
-            const matricola = document.getElementById('matricola').value;
-            if (allUnits.some(unit => unit.matricola === matricola)) {
-                showNotification('Matricola già esistente!', 'error');
-                return;
-            }
-
-            // Controlla se il nick esiste già
-            const nick = document.getElementById('nick').value;
-            if (allUnits.some(unit => unit.nick === nick)) {
-                showNotification('Nickname già registrato!', 'error');
-                return;
-            }
-            
-            const unitData = {
-                matricola: matricola,
-                password: await hashPassword(password),
-                nick: nick,
-                tipo: document.getElementById('tipo').value,
-                movimento: parseInt(document.getElementById('movimento').value),
-                visione: parseInt(document.getElementById('visione').value),
-                armatura: parseInt(document.getElementById('armatura').value),
-                rifornimenti: parseInt(document.getElementById('rifornimenti').value),
-                componenti: document.getElementById('componenti').value || 'N/A'
-            };
-            
-            await sendData('register', unitData, 'Unità registrata con successo!');
-            document.getElementById('registrationForm').reset();
-        }
-
-        // INVIO DATI con Google Forms - VERSIONE CORRETTA
-        async function sendViaGoogleForms(action, data) {
-            return new Promise((resolve, reject) => {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = 'https://docs.google.com/forms/d/e/1FAIpQLSdl4rtf7gXKCmJJgcePMJ-EE21XChmf14OX4vqkdqJ9zUXy6A/formResponse';
-                form.target = 'hiddenFrame';
-                form.style.display = 'none';
-
-                // Crea una stringa leggibile invece di JSON
-                let formData = '';
+                // Crea dati leggibili per il form
+                let formText = '';
                 if (action === 'register') {
-                    formData = `REGISTRAZIONE - Matricola: ${data.matricola}, Nick: ${data.nick}, Tipo: ${data.tipo}, Movimento: ${data.movimento}, Visione: ${data.visione}, Armatura: ${data.armatura}, Rifornimenti: ${data.rifornimenti}`;
+                    formText = `REGISTRAZIONE - Matricola: ${data.matricola}, Nick: ${data.nick}, Tipo: ${data.tipo}, Movimento: ${data.movimento}, Visione: ${data.visione}, Armatura: ${data.armatura}, Rifornimenti: ${data.rifornimenti}`;
                 } else if (action === 'submitOrder') {
-                    formData = `ORDINE - Matricola: ${data.matricola}, Tipo: ${data.tipoOrdine}, Dettagli: ${data.dettagli || ''}, Target: ${data.target || ''}, Quantità: ${data.quantità || ''}`;
+                    formText = `ORDINE - Matricola: ${data.matricola}, Tipo: ${data.tipoOrdine}, Dettagli: ${data.dettagli || ''}, Target: ${data.target || ''}, Quantità: ${data.quantità || ''}`;
                 }
 
                 const input = document.createElement('input');
-                input.name = 'entry.1179309262'; // ID del campo del form
-                input.value = formData;
+                input.name = FORM_FIELD_ID; // ID CORRETTO!
+                input.value = formText;
                 form.appendChild(input);
 
                 let iframe = document.getElementById('hiddenFrame');
@@ -705,7 +611,7 @@
             });
         }
 
-        // REGISTRAZIONE UNITÀ - Versione corretta
+        // REGISTRAZIONE UNITÀ
         async function handleRegistration() {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
@@ -739,56 +645,71 @@
                 componenti: document.getElementById('componenti').value || 'N/A'
             };
             
-            // INVIA AL FORM E ALLO SCRIPT DIRECTAMENTE
-            await sendDataWithFallback('register', unitData, 'Unità registrata con successo!');
+            await sendData('register', unitData, 'Unità registrata con successo!');
             document.getElementById('registrationForm').reset();
         }
 
-        // INVIO CON DOPPIO FALLBACK
-        async function sendDataWithFallback(action, data, successMessage) {
-            showNotification('📨 Invio dati in corso...', 'warning');
+        // [RIMANE TUTTO IL RESTO DEL CODICE COME PRIMA...]
+        // GESTIONE UNITÀ, ORDINI, E FUNZIONI UTILITY
+        function loadUnits() {
+            const grid = document.getElementById('unitsGrid');
             
-            try {
-                // PRIMA PROVA: Invio diretto allo script
-                const directSuccess = await sendDirectToScript(action, data);
-                if (directSuccess) {
-                    showNotification('✅ ' + successMessage, 'success');
-                    setTimeout(loadAllData, 2000);
-                    return true;
-                }
-                
-                // SECONDA PROVA: Google Forms con dati leggibili
-                await sendViaGoogleForms(action, data);
-                showNotification('✅ Dati inviati al Form!', 'success');
-                return true;
-                
-            } catch (error) {
-                showNotification('❌ Errore nell\'invio dati', 'error');
-                return false;
+            if (allUnits.length === 0) {
+                grid.innerHTML = '<div class="loading">Nessuna unità registrata</div>';
+                return;
             }
+
+            grid.innerHTML = '';
+            allUnits.forEach(unit => {
+                const card = document.createElement('div');
+                card.className = `unit-card ${unit.approvata === 'si' ? 'approved' : 'pending'}`;
+                
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong>${unit.matricola}</strong>
+                        <span class="status status-${unit.approvata === 'si' ? 'approved' : 'pending'}">
+                            ${unit.approvata === 'si' ? 'APPROVATA' : 'IN ATTESA'}
+                        </span>
+                    </div>
+                    <div>👤 ${unit.nick}</div>
+                    <div>🎯 ${unit.tipo} | 📍 ${unit.posizione}</div>
+                    <div>🚶 ${unit.movimento}m | 👁️ ${unit.visione}m | 🛡️ ${unit.armatura}</div>
+                    <div>📦 Rifornimenti: ${unit.rifornimenti}</div>
+                    <div>🔧 ${unit.componenti || 'Nessuno'}</div>
+                `;
+                
+                grid.appendChild(card);
+            });
         }
 
-        // INVIO DIRETTO ALLO SCRIPT
-        async function sendDirectToScript(action, data) {
-            return new Promise((resolve) => {
-                const callbackName = 'directCallback_' + Date.now();
-                
-                window[callbackName] = function(response) {
-                    if (response && response.success) {
-                        resolve(true);
-                    } else {
-                        resolve(false);
-                    }
-                    delete window[callbackName];
-                };
-
-                const script = document.createElement('script');
-                const encodedData = encodeURIComponent(JSON.stringify(data));
-                script.src = `${API_URL}?action=${action}&data=${encodedData}&callback=${callbackName}`;
-                script.onerror = () => resolve(false);
-                document.head.appendChild(script);
-
-                setTimeout(() => resolve(false), 8000);
+        function filterUnits(searchTerm) {
+            const filtered = allUnits.filter(unit => 
+                unit.matricola.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                unit.nick.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            
+            const grid = document.getElementById('unitsGrid');
+            grid.innerHTML = '';
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="loading">Nessuna unità trovata</div>';
+                return;
+            }
+            
+            filtered.forEach(unit => {
+                const card = document.createElement('div');
+                card.className = `unit-card ${unit.approvata === 'si' ? 'approved' : 'pending'}`;
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong>${unit.matricola}</strong>
+                        <span class="status status-${unit.approvata === 'si' ? 'approved' : 'pending'}">
+                            ${unit.approvata === 'si' ? 'APPROVATA' : 'IN ATTESA'}
+                        </span>
+                    </div>
+                    <div>👤 ${unit.nick}</div>
+                    <div>🎯 ${unit.tipo}</div>
+                `;
+                grid.appendChild(card);
             });
         }
 
@@ -804,7 +725,6 @@
             });
         }
 
-        // VERIFICA PASSWORD
         async function verifyPassword() {
             const matricola = document.getElementById('orderUnit').value;
             const password = document.getElementById('unitPassword').value;
@@ -822,7 +742,6 @@
             }
         }
 
-        // GESTIONE ORDINI
         function updateOrderDetails() {
             const detailsDiv = document.getElementById('orderDetails');
             const type = document.getElementById('orderType').value;
@@ -904,7 +823,6 @@
             document.getElementById('orderChain').style.display = 'block';
             showNotification('Ordine aggiunto alla catena!', 'success');
             
-            // Reset form
             document.getElementById('orderType').value = '';
             document.getElementById('orderDetails').innerHTML = '';
         }
@@ -941,14 +859,14 @@
                 return;
             }
             
-            showNotification(`📨 Invio ${currentOrders.length} ordini via Google Forms...`, 'warning');
+            showNotification(`📨 Invio ${currentOrders.length} ordini...`, 'warning');
             
             let successCount = 0;
             for (const order of currentOrders) {
                 try {
                     await sendData('submitOrder', order, '', false);
                     successCount++;
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // Delay tra ordini
+                    await new Promise(resolve => setTimeout(resolve, 1000));
                 } catch (error) {
                     console.error('Errore invio ordine:', error);
                 }
@@ -959,7 +877,6 @@
             document.getElementById('orderChain').style.display = 'none';
         }
 
-        // FUNZIONI UTILITY
         function updateStats() {
             const total = allUnits.length;
             const approved = allUnits.filter(u => u.approvata === 'si').length;
@@ -969,7 +886,6 @@
             document.getElementById('approvedUnits').textContent = approved;
             document.getElementById('pendingUnits').textContent = pending;
 
-            // Aggiorna stats container
             document.getElementById('statsContainer').innerHTML = `
                 <div class="stat-card">
                     <div class="stat-number">${total}</div>
@@ -1032,12 +948,12 @@
 ✅ Approvate: ${approvedUnits.length}
 ⏳ In attesa: ${allUnits.length - approvedUnits.length}
 🔄 Ultimo aggiornamento: ${new Date().toLocaleTimeString()}
-🔗 Metodo: Google Forms + JSONP
+🔗 ID Campo: ${FORM_FIELD_ID}
 `);
         }
     </script>
 
-    <!-- IFRAME NECESSARIO PER GOOGLE FORMS -->
+    <!-- IFRAME NECESSARIO -->
     <iframe name="hiddenFrame" id="hiddenFrame" style="display: none;"></iframe>
 </body>
 </html>
