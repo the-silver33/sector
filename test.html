@@ -487,15 +487,15 @@
             const data = {
                 action: 'register',
                 data: {
-                    matricola: formData.get('matricola'),
+                    matricola: String(formData.get('matricola')),
                     password: await hashPassword(password),
-                    nick: formData.get('nick'),
-                    tipo: formData.get('tipo'),
-                    movimento: parseInt(formData.get('movimento')),
-                    visione: parseInt(formData.get('visione')),
-                    armatura: parseInt(formData.get('armatura')),
-                    rifornimenti: parseInt(formData.get('rifornimenti')),
-                    componenti: formData.get('componenti')
+                    nick: String(formData.get('nick')),
+                    tipo: String(formData.get('tipo')),
+                    movimento: Number(formData.get('movimento')),
+                    visione: Number(formData.get('visione')),
+                    armatura: Number(formData.get('armatura')),
+                    rifornimenti: Number(formData.get('rifornimenti')),
+                    componenti: String(formData.get('componenti') || 'N/A')
                 }
             };
             
