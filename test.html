@@ -798,35 +798,61 @@
 
         // FUNZIONI UTILITY
         async function sendRequest(action, data, successMessage = '', showSuccess = true) {
+            const payload = { action: action, data: data };
+
+            // First try: normal fetch (works when server allows CORS)
             try {
                 const response = await fetch(WRITE_API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        action: action,
-                        data: data
-                    })
+                    body: JSON.stringify(payload)
                 });
-                
+
+                // If response is opaque or not ok, fall back
+                if (!response || !response.ok) {
+                    throw new Error('Fetch non-ok or opaque response');
+                }
+
                 const result = await response.json();
-                
-                if (result.success) {
-                    if (showSuccess) {
-                        showNotification('✅ ' + successMessage, 'success');
-                    }
-                    // Ricarica i dati dopo modifiche
+                if (result && result.success) {
+                    if (showSuccess) showNotification('✅ ' + successMessage, 'success');
                     setTimeout(loadAllData, 1000);
                     return true;
-                } else {
+                }
+
+                // If server returned success=false, show message
+                if (result && result.message) {
                     showNotification('❌ ' + result.message, 'error');
                     return false;
                 }
-            } catch (error) {
-                showNotification('❌ Errore di connessione: ' + error.message, 'error');
-                return false;
+            } catch (fetchError) {
+                // Common failure: CORS blocked => "Failed to fetch" or opaque response
+                console.warn('Fetch failed, will attempt form/iframe fallback:', fetchError);
+                showNotification('⚠️ Fallback invio (problem CORS): sto usando form submission...', 'warning');
+
+                try {
+                    const formRes = await sendPayloadViaForm(payload, WRITE_API_URL);
+                    if (formRes && formRes.success) {
+                        if (showSuccess) showNotification('✅ ' + successMessage, 'success');
+                        // give server a moment then reload
+                        setTimeout(loadAllData, 1200);
+                        return true;
+                    } else {
+                        showNotification('❌ Errore invio via form', 'error');
+                        return false;
+                    }
+                } catch (formErr) {
+                    console.error('Fallback form failed:', formErr);
+                    showNotification('❌ Errore di connessione: ' + (formErr.message || formErr), 'error');
+                    return false;
+                }
             }
+
+            // If we reach here, something unexpected happened
+            showNotification('❌ Errore sconosciuto durante l\'invio', 'error');
+            return false;
         }
 
         async function hashPassword(password) {
