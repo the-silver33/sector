@@ -391,14 +391,14 @@
                     <label for="order-type">Tipo Ordine *</label>
                     <select id="order-type" name="order-type" required>
                         <option value="">Seleziona tipo ordine</option>
-                        <option value="attivare">Attivare Componenti</option>
+                        <option value="muoversi">Muoversi</option>
                         <option value="salire">Salire su Mezzo</option>
                         <option value="scendere">Scendere da Mezzo</option>
+                        <option value="attivare">Attivare Componenti</option>
                         <option value="consumare">Consumare Rifornimenti</option>
                         <option value="cura">Cura</option>
                         <option value="ricaricare">Ricaricare Componente</option>
                         <option value="cedere">Cedere Rifornimenti</option>
-                        <option value="muoversi">Muoversi</option>
                     </select>
                 </div>
                 
@@ -421,8 +421,8 @@
     </div>
 
     <script>
-        // URL dell'API Google Apps Script
-        const API_URL = 'https://script.google.com/macros/s/AKfycbzUAJ1rJrUp_QRD0Q_ckbWAbmNyuoi0Ln5c8FqN6Kjt21oJfRRox-wUQGMjd5O6NQ3U/exec';
+        // URL della tua web app Google Apps Script
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzOnva7d51fQGtk6tEB0Wk-1GqyqLSXbuapSf32Hqu29uaIIhExwq07F9sHITYxagI/exec';
         
         // Elementi DOM
         const tabs = document.querySelectorAll('.tab');
@@ -691,33 +691,31 @@
             let html = '';
             
             switch (orderType) {
-                case 'attivare':
+                case 'muoversi':
                     html = `
                         <div class="form-group">
-                            <label for="componente">Componente da Attivare</label>
-                            <input type="text" id="componente" name="componente">
+                            <label for="dettagli">Casella Destinazione</label>
+                            <input type="text" id="dettagli" name="dettagli" placeholder="Es: B2" required>
                         </div>
                     `;
                     break;
                     
                 case 'salire':
+                case 'scendere':
                     html = `
                         <div class="form-group">
-                            <label for="posizione-destinazione">Posizione Destinazione</label>
-                            <input type="text" id="posizione-destinazione" name="posizione-destinazione">
+                            <label for="dettagli">Posizione</label>
+                            <input type="text" id="dettagli" name="dettagli" placeholder="Es: C3" required>
                         </div>
                     `;
                     break;
                     
-                case 'scendere':
+                case 'attivare':
+                case 'ricaricare':
                     html = `
                         <div class="form-group">
-                            <label for="posizione">Posizione</label>
-                            <input type="text" id="posizione" name="posizione">
-                        </div>
-                        <div class="form-group">
-                            <label for="matricola-mezzo">Matricola Mezzo</label>
-                            <input type="text" id="matricola-mezzo" name="matricola-mezzo">
+                            <label for="dettagli">Nome Componente</label>
+                            <input type="text" id="dettagli" name="dettagli" placeholder="Es: Fucile" required>
                         </div>
                     `;
                     break;
@@ -725,17 +723,8 @@
                 case 'consumare':
                     html = `
                         <div class="form-group">
-                            <label for="quantita-rifornimenti">Quantità Rifornimenti</label>
-                            <input type="number" id="quantita-rifornimenti" name="quantita-rifornimenti" min="1">
-                        </div>
-                    `;
-                    break;
-                    
-                case 'ricaricare':
-                    html = `
-                        <div class="form-group">
-                            <label for="componente-ricaricare">Componente da Ricaricare</label>
-                            <input type="text" id="componente-ricaricare" name="componente-ricaricare">
+                            <label for="quantita">Quantità Rifornimenti</label>
+                            <input type="number" id="quantita" name="quantita" min="1" required>
                         </div>
                     `;
                     break;
@@ -743,30 +732,19 @@
                 case 'cedere':
                     html = `
                         <div class="form-group">
-                            <label for="unita-destinataria">Unità Destinataria</label>
-                            <select id="unita-destinataria" name="unita-destinataria">
-                                <option value="">Seleziona unità</option>
-                                <!-- Le opzioni verranno popolate dinamicamente -->
-                            </select>
+                            <label for="target">Unità Destinataria</label>
+                            <input type="text" id="target" name="target" placeholder="Es: XYZ-789" required>
                         </div>
                         <div class="form-group">
-                            <label for="quantita-cedere">Quantità</label>
-                            <input type="number" id="quantita-cedere" name="quantita-cedere" min="1">
+                            <label for="quantita">Quantità</label>
+                            <input type="number" id="quantita" name="quantita" min="1" required>
                         </div>
                     `;
-                    // Popola le unità destinatarie
-                    setTimeout(() => {
-                        populateDestinataryUnits();
-                    }, 100);
                     break;
                     
-                case 'muoversi':
-                    html = `
-                        <div class="form-group">
-                            <label for="casella-destinazione">Casella Destinazione</label>
-                            <input type="text" id="casella-destinazione" name="casella-destinazione">
-                        </div>
-                    `;
+                case 'cura':
+                    // Nessun dettaglio aggiuntivo necessario
+                    html = '<p>Ordine di cura - nessun dettaglio aggiuntivo richiesto</p>';
                     break;
                     
                 default:
@@ -774,35 +752,6 @@
             }
             
             orderDetails.innerHTML = html;
-        }
-        
-        // Popola le unità destinatarie per l'ordine "Cedere Rifornimenti"
-        async function populateDestinataryUnits() {
-            const unitaDestinatariaSelect = document.getElementById('unita-destinataria');
-            
-            if (!unitaDestinatariaSelect) return;
-            
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
-                
-                if (data.success) {
-                    const approvedUnits = data.data.filter(unit => 
-                        unit.approvata === 'si' && unit.matricola !== orderUnitSelect.value
-                    );
-                    
-                    unitaDestinatariaSelect.innerHTML = '<option value="">Seleziona unità</option>';
-                    
-                    approvedUnits.forEach(unit => {
-                        const option = document.createElement('option');
-                        option.value = unit.matricola;
-                        option.textContent = `${unit.matricola} - ${unit.nick} (${unit.tipo})`;
-                        unitaDestinatariaSelect.appendChild(option);
-                    });
-                }
-            } catch (error) {
-                console.error('Errore nel caricamento delle unità destinatarie:', error);
-            }
         }
         
         // Aggiungi ordine alla catena
@@ -824,34 +773,21 @@
             
             // Raccogli i dettagli specifici in base al tipo di ordine
             switch (orderType) {
-                case 'attivare':
-                    orderData.dettagli = document.getElementById('componente').value || '';
-                    break;
-                    
+                case 'muoversi':
                 case 'salire':
-                    orderData.dettagli = document.getElementById('posizione-destinazione').value || '';
-                    break;
-                    
                 case 'scendere':
-                    orderData.dettagli = document.getElementById('posizione').value || '';
-                    orderData.target = document.getElementById('matricola-mezzo').value || '';
+                case 'attivare':
+                case 'ricaricare':
+                    orderData.dettagli = document.getElementById('dettagli')?.value || '';
                     break;
                     
                 case 'consumare':
-                    orderData.quantità = document.getElementById('quantita-rifornimenti').value || '';
-                    break;
-                    
-                case 'ricaricare':
-                    orderData.dettagli = document.getElementById('componente-ricaricare').value || '';
+                    orderData.quantità = document.getElementById('quantita')?.value || '';
                     break;
                     
                 case 'cedere':
-                    orderData.target = document.getElementById('unita-destinataria').value || '';
-                    orderData.quantità = document.getElementById('quantita-cedere').value || '';
-                    break;
-                    
-                case 'muoversi':
-                    orderData.dettagli = document.getElementById('casella-destinazione').value || '';
+                    orderData.target = document.getElementById('target')?.value || '';
+                    orderData.quantità = document.getElementById('quantita')?.value || '';
                     break;
             }
             
@@ -900,14 +836,14 @@
         // Testo descrittivo per i tipi di ordine
         function getOrderTypeText(type) {
             const types = {
-                'attivare': 'Attivare Componenti',
+                'muoversi': 'Muoversi',
                 'salire': 'Salire su Mezzo',
                 'scendere': 'Scendere da Mezzo',
+                'attivare': 'Attivare Componenti',
                 'consumare': 'Consumare Rifornimenti',
                 'cura': 'Cura',
                 'ricaricare': 'Ricaricare Componente',
-                'cedere': 'Cedere Rifornimenti',
-                'muoversi': 'Muoversi'
+                'cedere': 'Cedere Rifornimenti'
             };
             
             return types[type] || type;
@@ -950,8 +886,7 @@
                     tipoOrdine,
                     dettagli,
                     target,
-                    quantità,
-                    timestamp: new Date().toISOString()
+                    quantità
                 });
             }
             
