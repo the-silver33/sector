@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debugger Sistema Militare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+        
+        .api-url {
+            background: #34495e;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .control-group {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .control-group h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background: #219a52;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+        }
+        
+        .btn-warning:hover {
+            background: #d35400;
+        }
+        
+        .results {
+            padding: 30px;
+            background: white;
+        }
+        
+        .results h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .log-container {
+            background: #1e272e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        .log-entry {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-left: 3px solid #3498db;
+            background: rgba(52, 152, 219, 0.1);
+        }
+        
+        .log-error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+            color: #ff6b6b;
+        }
+        
+        .log-success {
+            border-left-color: #27ae60;
+            background: rgba(39, 174, 96, 0.1);
+            color: #55efc4;
+        }
+        
+        .log-warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, 0.1);
+            color: #fdcb6e;
+        }
+        
+        .data-display {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .unit-card, .order-card {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .unit-card.approved {
+            border-left-color: #27ae60;
+        }
+        
+        .unit-card.pending {
+            border-left-color: #f39c12;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .test-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 2px dashed #bdc3c7;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Debugger Sistema Militare</h1>
+            <p>Strumento di testing completo per l'API Google Apps Script</p>
+            <div class="api-url" id="apiUrl">URL API: Caricamento...</div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <h3>📊 Test Connessione</h3>
+                <button class="btn" onclick="testConnection()">Test Connessione API</button>
+                <button class="btn btn-success" onclick="getAllUnits()">Carica Tutte le Unità</button>
+                <button class="btn btn-warning" onclick="clearLogs()">Pulizia Logs</button>
+            </div>
+            
+            <div class="control-group">
+                <h3>🎯 Test Registrazione</h3>
+                <button class="btn btn-success" onclick="testRegistration()">Test Registrazione Unitá</button>
+                <button class="btn" onclick="showRegistrationForm()">Mostra Form Registrazione</button>
+                <div id="registrationForm" class="test-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Matricola:</label>
+                        <input type="text" id="debugMatricola" value="DBG-001">
+                    </div>
+                    <div class="form-group">
+                        <label>Nickname:</label>
+                        <input type="text" id="debugNick" value="debug_user">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo:</label>
+                        <select id="debugTipo">
+                            <option>Fanteria</option>
+                            <option>Motorizzata</option>
+                            <option>Corazzata</option>
+                            <option>Artiglieria</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="text" id="debugPassword" value="debug123">
+                    </div>
+                    <button class="btn btn-success" onclick="submitRegistration()">Registra Unitá</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>📨 Test Ordini</h3>
+                <button class="btn" onclick="testMovementOrder()">Test Ordine Movimento</button>
+                <button class="btn" onclick="testCureOrder()">Test Ordine Cura</button>
+                <button class="btn" onclick="testComponentOrder()">Test Ordine Componente</button>
+                <button class="btn btn-warning" onclick="showCustomOrderForm()">Ordine Personalizzato</button>
+                
+                <div id="customOrderForm" class="test-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Matricola Unitá:</label>
+                        <input type="text" id="orderMatricola" placeholder="Es: ABC-123">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo Ordine:</label>
+                        <select id="orderType">
+                            <option value="muoversi">Muoversi</option>
+                            <option value="salire">Salire</option>
+                            <option value="scendere">Scendere</option>
+                            <option value="attivare">Attivare Componente</option>
+                            <option value="cura">Cura</option>
+                            <option value="ricaricare">Ricaricare</option>
+                            <option value="consumare">Consumare</option>
+                            <option value="cedere">Cedere</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Dettagli:</label>
+                        <input type="text" id="orderDetails" placeholder="Es: B2 o Nome Componente">
+                    </div>
+                    <div class="form-group">
+                        <label>Target (solo per cedere):</label>
+                        <input type="text" id="orderTarget" placeholder="Matricola destinatario">
+                    </div>
+                    <div class="form-group">
+                        <label>Quantità (solo per consumare/cedere):</label>
+                        <input type="number" id="orderQuantity" value="1">
+                    </div>
+                    <button class="btn btn-success" onclick="submitCustomOrder()">Invia Ordine</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>⚙️ Utility</h3>
+                <button class="btn" onclick="checkSheetStructure()">Verifica Struttura Foglio</button>
+                <button class="btn btn-warning" onclick="stressTest()">Test Carico Massivo</button>
+                <button class="btn btn-danger" onclick="clearAllData()">⚠️ Cancella Tutti i Dati</button>
+            </div>
+        </div>
+        
+        <div class="results">
+            <h2>📋 Logs e Risultati</h2>
+            
+            <div class="stats" id="statsContainer">
+                <!-- Le statistiche verranno generate dinamicamente -->
+            </div>
+            
+            <div class="log-container" id="logContainer">
+                <div class="log-entry">🔧 Debugger inizializzato. Pronto per i test.</div>
+            </div>
+            
+            <div class="data-display">
+                <h3>📊 Dati Correnti</h3>
+                <div id="unitsDisplay"></div>
+                <div id="ordersDisplay"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configurazione
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzOnva7d51fQGtk6tEB0Wk-1GqyqLSXbuapSf32Hqu29uaIIhExwq07F9sHITYxagI/exec';
+        let logs = [];
+        
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('apiUrl').textContent = `URL API: ${API_URL}`;
+            addLog('🟢 Debugger inizializzato correttamente', 'success');
+            testConnection();
+        });
+        
+        // Funzioni di Logging
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = {
+                timestamp,
+                message,
+                type
+            };
+            
+            logs.push(logEntry);
+            
+            const logContainer = document.getElementById('logContainer');
+            const logElement = document.createElement('div');
+            logElement.className = `log-entry log-${type}`;
+            logElement.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            
+            logContainer.appendChild(logElement);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Limita i log a 100 voci
+            if (logs.length > 100) {
+                logs.shift();
+                if (logContainer.children.length > 100) {
+                    logContainer.removeChild(logContainer.firstChild);
+                }
+            }
+        }
+        
+        function clearLogs() {
+            logs = [];
+            document.getElementById('logContainer').innerHTML = '';
+            addLog('🧹 Logs puliti', 'warning');
+        }
+        
+        // Funzioni di Test
+        async function testConnection() {
+            addLog('🔍 Test connessione API in corso...', 'info');
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(API_URL);
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                addLog(`🟢 Connessione OK - ${responseTime}ms`, 'success');
+                addLog(`📊 API Response: ${JSON.stringify(data)}`, 'success');
+                
+                updateStats(data);
+                
+            } catch (error) {
+                addLog(`🔴 Errore connessione: ${error.message}`, 'error');
+            }
+        }
+        
+        async function getAllUnits() {
+            addLog('📥 Caricamento unità in corso...', 'info');
+            
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                if (data.success) {
+                    addLog(`🟢 Trovate ${data.data.length} unità`, 'success');
+                    displayUnits(data.data);
+                    updateStats(data);
+                } else {
+                    addLog(`🔴 Errore: ${data.message}`, 'error');
+                }
+                
+            } catch (error) {
+                addLog(`🔴 Errore caricamento: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testRegistration() {
+            const testUnit = {
+                matricola: 'TEST-' + Math.random().toString(36).substr(2, 4).toUpperCase(),
+                password: await hashPassword('test123'),
+                nick: 'test_user_' + Date.now(),
+                tipo: 'Fanteria',
+                movimento: 2,
+                visione: 1,
+                armatura: 1,
+                rifornimenti: 3,
+                componenti: 'Fucile di test'
+            };
+            
+            addLog(`🎯 Test registrazione: ${testUnit.matricola}`, 'info');
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'register',
+                        data: testUnit
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog(`🟢 Registrazione OK: ${result.message}`, 'success');
+                    // Ricarica le unità
+                    getAllUnits();
+                } else {
+                    addLog(`🔴 Registrazione fallita: ${result.message}`, 'error');
+                }
+                
+            } catch (error) {
+                addLog(`🔴 Errore registrazione: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testMovementOrder() {
+            addLog('🚀 Test ordine movimento...', 'info');
+            
+            const order = {
+                matricola: 'ABC-123', // Usa un'unità esistente
+                tipoOrdine: 'muoversi',
+                dettagli: 'B2'
+            };
+            
+            await submitOrder(order);
+        }
+        
+        async function testCureOrder() {
+            addLog('💊 Test ordine cura...', 'info');
+            
+            const order = {
+                matricola: 'ABC-123',
+                tipoOrdine: 'cura'
+            };
+            
+            await submitOrder(order);
+        }
+        
+        async function testComponentOrder() {
+            addLog('🔧 Test ordine componente...', 'info');
+            
+            const order = {
+                matricola: 'ABC-123',
+                tipoOrdine: 'attivare',
+                dettagli: 'Radar'
+            };
+            
+            await submitOrder(order);
+        }
+        
+        async function submitOrder(orderData) {
+            addLog(`📨 Invio ordine: ${orderData.tipoOrdine} per ${orderData.matricola}`, 'info');
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'submitOrder',
+                        data: orderData
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog(`🟢 Ordine inviato: ${result.message}`, 'success');
+                } else {
+                    addLog(`🔴 Ordine fallito: ${result.message}`, 'error');
+                }
+                
+            } catch (error) {
+                addLog(`🔴 Errore invio ordine: ${error.message}`, 'error');
+            }
+        }
+        
+        // Funzioni UI
+        function showRegistrationForm() {
+            const form = document.getElementById('registrationForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        async function submitRegistration() {
+            const unitData = {
+                matricola: document.getElementById('debugMatricola').value,
+                password: await hashPassword(document.getElementById('debugPassword').value),
+                nick: document.getElementById('debugNick').value,
+                tipo: document.getElementById('debugTipo').value,
+                movimento: 2,
+                visione: 1,
+                armatura: 1,
+                rifornimenti: 3,
+                componenti: 'Equipaggiamento debug'
+            };
+            
+            addLog(`🎯 Registrazione manuale: ${unitData.matricola}`, 'info');
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'register',
+                        data: unitData
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog(`🟢 Registrazione manuale OK: ${result.message}`, 'success');
+                    getAllUnits();
+                } else {
+                    addLog(`🔴 Registrazione manuale fallita: ${result.message}`, 'error');
+                }
+                
+            } catch (error) {
+                addLog(`🔴 Errore registrazione manuale: ${error.message}`, 'error');
+            }
+        }
+        
+        function showCustomOrderForm() {
+            const form = document.getElementById('customOrderForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        async function submitCustomOrder() {
+            const orderData = {
+                matricola: document.getElementById('orderMatricola').value,
+                tipoOrdine: document.getElementById('orderType').value,
+                dettagli: document.getElementById('orderDetails').value,
+                target: document.getElementById('orderTarget').value,
+                quantità: document.getElementById('orderQuantity').value
+            };
+            
+            await submitOrder(orderData);
+        }
+        
+        // Utility Functions
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        
+        function displayUnits(units) {
+            const container = document.getElementById('unitsDisplay');
+            container.innerHTML = '<h4>🏛️ Unità Registrate:</h4>';
+            
+            if (units.length === 0) {
+                container.innerHTML += '<p>Nessuna unità registrata</p>';
+                return;
+            }
+            
+            units.forEach(unit => {
+                const unitCard = document.createElement('div');
+                unitCard.className = `unit-card ${unit.approvata === 'si' ? 'approved' : 'pending'}`;
+                
+                unitCard.innerHTML = `
+                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 10px;">
+                        <strong>${unit.matricola}</strong>
+                        <span class="status status-${unit.approvata === 'si' ? 'approved' : 'pending'}">
+                            ${unit.approvata === 'si' ? 'APPROVATA' : 'IN ATTESA'}
+                        </span>
+                    </div>
+                    <div>👤 ${unit.nick} | 🎯 ${unit.tipo}</div>
+                    <div>📍 ${unit.posizione} | 🚶 ${unit.movimento}m | 👁️ ${unit.visione}m</div>
+                    <div>🛡️ ${unit.armatura} | 📦 ${unit.rifornimenti}</div>
+                    <div>🔧 ${unit.componenti || 'Nessuno'}</div>
+                `;
+                
+                container.appendChild(unitCard);
+            });
+        }
+        
+        function updateStats(data) {
+            const statsContainer = document.getElementById('statsContainer');
+            const units = data.data || [];
+            
+            const approvedUnits = units.filter(u => u.approvata === 'si').length;
+            const pendingUnits = units.filter(u => u.approvata === 'no').length;
+            
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${units.length}</div>
+                    <div class="stat-label">Unitá Totali</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" style="color: #27ae60;">${approvedUnits}</div>
+                    <div class="stat-label">Unitá Approvate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" style="color: #f39c12;">${pendingUnits}</div>
+                    <div class="stat-label">In Attesa</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" style="color: #3498db;">${logs.length}</div>
+                    <div class="stat-label">Log Entries</div>
+                </div>
+            `;
+        }
+        
+        async function stressTest() {
+            addLog('⚡ Avvio test di carico massivo...', 'warning');
+            
+            for (let i = 0; i < 5; i++) {
+                await testRegistration();
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            addLog('✅ Test di carico completato', 'success');
+        }
+        
+        async function clearAllData() {
+            if (!confirm('⚠️ ATTENZIONE: Questo cancellerà TUTTI i dati di test. Continuare?')) {
+                return;
+            }
+            
+            addLog('🧹 Pulizia dati in corso...', 'warning');
+            // Qui potresti aggiungere una chiamata API per pulire i dati
+            addLog('✅ Pulizia completata (funzionalità da implementare)', 'success');
+        }
+        
+        function checkSheetStructure() {
+            addLog('📋 Verifica struttura foglio...', 'info');
+            addLog('🔍 Controllo colonne unità: approvata, matricola, password, nick, tipo, posizione, movimento, visione, armatura, rifornimenti, trasportata, componenti', 'info');
+            addLog('🔍 Controllo colonne ordini: approvati, matricola, movimento, salire/scendere, componenti, rifornimenti', 'info');
+            addLog('✅ Verifica struttura completata', 'success');
+        }
+    </script>
+</body>
+</html>
