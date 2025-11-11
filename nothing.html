@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aerei da Guerra - L'arte del volo militare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0a0f1e;
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 5s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        header {
+            background: linear-gradient(to bottom, rgba(10, 15, 30, 0.9), rgba(10, 15, 30, 0.5));
+            padding: 20px 50px;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: #4a9eff;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(to right, #4a9eff, #8ac6ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(74, 158, 255, 0.5);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            color: #b0d0ff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        nav a:hover {
+            color: #4a9eff;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(to right, #4a9eff, #8ac6ff);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(74, 158, 255, 0.1) 0%, rgba(10, 15, 30, 0.9) 70%);
+            z-index: -1;
+        }
+
+        .hero h2 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ffffff, #b0d0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(74, 158, 255, 0.7);
+            animation: fadeInUp 1.5s ease;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            max-width: 700px;
+            margin-bottom: 40px;
+            color: #b0d0ff;
+            animation: fadeInUp 1.5s ease 0.3s both;
+        }
+
+        .cta-button {
+            padding: 15px 40px;
+            background: linear-gradient(to right, #4a9eff, #2a5ca0);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(74, 158, 255, 0.4);
+            animation: fadeInUp 1.5s ease 0.6s both;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(74, 158, 255, 0.6);
+        }
+
+        .aircraft-showcase {
+            padding: 100px 50px;
+            background: linear-gradient(to bottom, #0a0f1e, #0c1428);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 70px;
+            position: relative;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #4a9eff, #8ac6ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, #4a9eff, #8ac6ff);
+        }
+
+        .aircraft-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .aircraft-card {
+            background: rgba(20, 30, 48, 0.7);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(74, 158, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .aircraft-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 15px 30px rgba(74, 158, 255, 0.3);
+            border-color: rgba(74, 158, 255, 0.5);
+        }
+
+        .card-image {
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .aircraft-card:hover .card-image img {
+            transform: scale(1.1);
+        }
+
+        .card-content {
+            padding: 25px;
+        }
+
+        .card-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #4a9eff;
+        }
+
+        .card-content p {
+            color: #b0d0ff;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .card-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #4a9eff;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #8ac6ff;
+        }
+
+        .card-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: rgba(74, 158, 255, 0.2);
+            border: 1px solid rgba(74, 158, 255, 0.5);
+            border-radius: 8px;
+            color: #b0d0ff;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .card-button:hover {
+            background: rgba(74, 158, 255, 0.4);
+            color: white;
+        }
+
+        .features {
+            padding: 100px 50px;
+            background: linear-gradient(to bottom, #0c1428, #0a0f1e);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(20, 30, 48, 0.5);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(74, 158, 255, 0.2);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(74, 158, 255, 0.2);
+            border-color: rgba(74, 158, 255, 0.5);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #4a9eff;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #b0d0ff;
+        }
+
+        .feature-card p {
+            color: #8ac6ff;
+            line-height: 1.6;
+        }
+
+        footer {
+            background: linear-gradient(to bottom, #0a0f1e, #050811);
+            padding: 60px 50px 30px;
+            border-top: 1px solid rgba(74, 158, 255, 0.2);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #4a9eff;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(to right, #4a9eff, #8ac6ff);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column a {
+            color: #b0d0ff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-column a:hover {
+            color: #4a9eff;
+            padding-left: 5px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(74, 158, 255, 0.2);
+            color: #b0d0ff;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: rgba(74, 158, 255, 0.4);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(74, 158, 255, 0.1);
+            color: #8ac6ff;
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            nav ul {
+                gap: 15px;
+            }
+
+            .hero h2 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+            }
+
+            .aircraft-showcase, .features {
+                padding: 80px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sfondo con stelle -->
+    <div class="stars" id="stars"></div>
+
+    <header>
+        <div class="logo">
+            <i class="fas fa-fighter-jet"></i>
+            <h1>AEREO DA GUERRA</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Aerei</a></li>
+                <li><a href="#">Storia</a></li>
+                <li><a href="#">Tecnologia</a></li>
+                <li><a href="#">Galleria</a></li>
+                <li><a href="#">Contatti</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h2>L'ARTE DEL VOLO MILITARE</h2>
+        <p>Scopri i più avanzati e potenti aerei da guerra che hanno plasmato la storia dell'aviazione militare mondiale.</p>
+        <button class="cta-button">ESPLORA LA COLLEZIONE</button>
+    </section>
+
+    <section class="aircraft-showcase">
+        <div class="section-title">
+            <h2>ICONE DELL'AVIAZIONE MILITARE</h2>
+        </div>
+        <div class="aircraft-grid">
+            <div class="aircraft-card">
+                <div class="card-image">
+                    <img src="https://images.unsplash.com/photo-1580554530778-ca36943938b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="F-22 Raptor">
+                </div>
+                <div class="card-content">
+                    <h3>F-22 Raptor</h3>
+                    <p>Caccia stealth di quinta generazione, progettato per superiorità aerea con capacità di attacco al suolo.</p>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <div class="stat-value">2.25 Mach</div>
+                            <div class="stat-label">Velocità max</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">65,000 ft</div>
+                            <div class="stat-label">Quota max</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">2005</div>
+                            <div class="stat-label">Anno</div>
+                        </div>
+                    </div>
+                    <a href="#" class="card-button">DETTAGLI</a>
+                </div>
+            </div>
+
+            <div class="aircraft-card">
+                <div class="card-image">
+                    <img src="https://images.unsplash.com/photo-1546453667-8a8bb4e6c5e9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="F-35 Lightning II">
+                </div>
+                <div class="card-content">
+                    <h3>F-35 Lightning II</h3>
+                    <p>Caccia multiruolo stealth di quinta generazione, progettato per missioni di attacco e ricognizione.</p>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <div class="stat-value">1.6 Mach</div>
+                            <div class="stat-label">Velocità max</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">50,000 ft</div>
+                            <div class="stat-label">Quota max</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">2015</div>
+                            <div class="stat-label">Anno</div>
+                        </div>
+                    </div>
+                    <a href="#" class="card-button">DETTAGLI</a>
+                </div>
+            </div>
+
+            <div class="aircraft-card">
+                <div class="card-image">
+                    <img src="https://images.unsplash.com/photo-1582678404050-0e376d1c73ea?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Su-57 Felon">
+                </div>
+                <div class="card-content">
+                    <h3>Su-57 Felon</h3>
+                    <p>Caccia stealth multiruolo di quinta generazione russo, progettato per superiorità aerea e attacco.</p>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <div class="stat-value">2.0 Mach</div>
+                            <div class="stat-label">Velocità max</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">65,000 ft</div>
+                            <div class="stat-label">Quota max</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">2020</div>
+                            <div class="stat-label">Anno</div>
+                        </div>
+                    </div>
+                    <a href="#" class="card-button">DETTAGLI</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="section-title">
+            <h2>TECNOLOGIE AVANZATE</h2>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-radar"></i>
+                </div>
+                <h3>Sistemi Stealth</h3>
+                <p>Tecnologie avanzate per ridurre la tracciabilità radar e mantenere il profilo basso nelle missioni.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-missile"></i>
+                </div>
+                <h3>Armamenti Avanzati</h3>
+                <p>Missili aria-aria e aria-terra di ultima generazione con sistemi di targeting di precisione.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-satellite"></i>
+                </div>
+                <h3>Avionica Digitale</h3>
+                <p>Sistemi di volo integrati e cockpit digitali per una superiore consapevolezza situazionale.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-wind"></i>
+                </div>
+                <h3>Motori ad Alta Spinta</h3>
+                <p>Propulsione avanzata per manovrabilità superiore e prestazioni in combattimento aereo.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Esplora</h3>
+                <ul>
+                    <li><a href="#">Aerei da caccia</a></li>
+                    <li><a href="#">Bombardieri</a></li>
+                    <li><a href="#">Aerei da attacco</a></li>
+                    <li><a href="#">Ricognizione</a></li>
+                    <li><a href="#">Trasporto militare</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Risorse</h3>
+                <ul>
+                    <li><a href="#">Galleria fotografica</a></li>
+                    <li><a href="#">Specifiche tecniche</a></li>
+                    <li><a href="#">Documenti storici</a></li>
+                    <li><a href="#">Video esclusivi</a></li>
+                    <li><a href="#">Blog</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Contatti</h3>
+                <ul>
+                    <li><a href="#">Informazioni</a></li>
+                    <li><a href="#">Supporto</a></li>
+                    <li><a href="#">Collaborazioni</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Termini di servizio</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Seguici</h3>
+                <p>Rimani aggiornato sulle ultime novità nel mondo dell'aviazione militare.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p>&copy; 2023 Aereo da Guerra. Tutti i diritti riservati. | Sito creato per scopi dimostrativi</p>
+        </div>
+    </footer>
+
+    <script>
+        // Creazione delle stelle per lo sfondo
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starsCount = 200;
+            
+            for (let i = 0; i < starsCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Posizione casuale
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                
+                // Dimensione casuale
+                const size = Math.random() * 2 + 1;
+                
+                // Durata animazione casuale
+                const duration = Math.random() * 5 + 3;
+                
+                // Delay casuale
+                const delay = Math.random() * 5;
+                
+                star.style.left = `${x}%`;
+                star.style.top = `${y}%`;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.animationDuration = `${duration}s`;
+                star.style.animationDelay = `${delay}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Animazione per le card quando entrano nella viewport
+        function animateOnScroll() {
+            const cards = document.querySelectorAll('.aircraft-card, .feature-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'fadeInUp 1s ease forwards';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                observer.observe(card);
+            });
+        }
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            createStars();
+            animateOnScroll();
+        });
+    </script>
+</body>
+</html>
