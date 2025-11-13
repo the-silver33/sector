@@ -1,223 +1,581 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Form Data Collector</title>
+    <title>404 Page Not Found</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            overflow: hidden;
         }
+        
         .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            width: 90%;
+            position: relative;
         }
-        .section {
-            margin-bottom: 20px;
+        
+        .error-code {
+            font-size: 8rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            text-shadow: 3px 3px 0 #ff0000;
+            line-height: 1;
+        }
+        
+        .error-message {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #ffcc00;
+        }
+        
+        .error-description {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+        
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #4285f4;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #3367d6;
+            transform: translateY(-3px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .hidden-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        
+        .hidden-btn:hover {
+            background: rgba(255, 0, 0, 0.2);
+            color: white;
+        }
+        
+        .disclaimer {
+            background: rgba(255, 0, 0, 0.2);
+            border-left: 4px solid #ff0000;
             padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 0.9rem;
+            border-radius: 0 5px 5px 0;
         }
+        
+        .data-panel {
+            display: none;
+            margin-top: 20px;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
         .data-item {
             margin: 5px 0;
             padding: 8px;
-            background: #f9f9f9;
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 3px;
             font-family: monospace;
             font-size: 12px;
+            word-break: break-all;
         }
-        button {
-            background: #4285f4;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 5px;
-        }
-        button:hover {
-            background: #3367d6;
-        }
-        button.secondary {
-            background: #34a853;
-        }
+        
         .status {
             margin-top: 10px;
             padding: 10px;
             border-radius: 5px;
             font-weight: bold;
+            display: none;
         }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .loading { background: #fff3cd; color: #856404; }
+        
+        .success { 
+            background: rgba(0, 255, 0, 0.2); 
+            color: #90ee90; 
+            border-left: 4px solid #00ff00;
+        }
+        
+        .error { 
+            background: rgba(255, 0, 0, 0.2); 
+            color: #ffcccb; 
+            border-left: 4px solid #ff0000;
+        }
+        
+        .loading { 
+            background: rgba(255, 255, 0, 0.2); 
+            color: #ffff00; 
+            border-left: 4px solid #ffff00;
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 Google Form Data Collector</h1>
-        <p>Questo script raccoglie dati dal browser e li invia automaticamente al tuo Google Form.</p>
+        <div class="error-code floating">404</div>
+        <div class="error-message">Page Not Found</div>
+        <div class="error-description">
+            The page you are looking for might have been removed, had its name changed, 
+            or is temporarily unavailable. Please check the URL and try again.
+        </div>
         
-        <div class="section">
-            <h3>Dati Raccoglibili</h3>
+        <div class="actions">
+            <button class="btn btn-primary pulse" onclick="goHome()">Go to Homepage</button>
+            <button class="btn btn-secondary" onclick="goBack()">Go Back</button>
+        </div>
+        
+        <div class="disclaimer">
+            <strong>SECURITY NOTICE:</strong> This is a simulated 404 page for cybersecurity education purposes only. 
+            Do not use this technique on systems you don't own or without explicit permission.
+        </div>
+        
+        <button class="hidden-btn" onclick="toggleDataPanel()">Data Collector</button>
+        
+        <div class="data-panel" id="dataPanel">
+            <h3>Collected System Information</h3>
             <div id="dataPreview"></div>
-        </div>
-
-        <div class="section">
-            <h3>Azioni</h3>
-            <button onclick="collectAndSendToForm()">📨 Invia al Google Form</button>
-            <button class="secondary" onclick="showRawData()">👁️ Mostra Dati Grezzi</button>
-            <button class="secondary" onclick="testFormSubmission()">🧪 Test Invio Semplice</button>
+            <button class="btn btn-primary" onclick="collectAndSendToForm()" style="margin-top: 15px; width: 100%;">
+                Send Data to Server
+            </button>
             <div id="status"></div>
-        </div>
-
-        <div class="section" id="rawDataSection" style="display: none;">
-            <h3>Dati Grezzi</h3>
-            <pre id="rawData"></pre>
         </div>
     </div>
 
     <script>
-        // Configurazione del form
+        // Configuration
         const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScEUkDuv8YlgvHIzWNIXTbtZJKgzHuW50tjBRGI36_TCLhAww/formResponse';
         const FORM_FIELD_ID = 'entry.81034129';
 
-        // Funzione per raccogliere tutti i dati
+        // Enhanced data collection function
         function collectAllData() {
             const data = {
-                timestamp: new Date().toLocaleString('it-IT'),
+                // Basic identification
+                timestamp: new Date().toISOString(),
+                sessionId: generateSessionId(),
+                
+                // Browser information
                 userAgent: navigator.userAgent,
+                browserName: getBrowserName(),
+                browserVersion: getBrowserVersion(),
                 language: navigator.language,
+                languages: navigator.languages ? navigator.languages.join(', ') : 'unknown',
                 platform: navigator.platform,
-                screen: `${screen.width}x${screen.height}`,
-                viewport: `${window.innerWidth}x${window.innerHeight}`,
-                devicePixelRatio: window.devicePixelRatio,
-                cookies: navigator.cookieEnabled ? 'enabled' : 'disabled',
+                vendor: navigator.vendor,
+                
+                // Screen information
+                screen: {
+                    width: screen.width,
+                    height: screen.height,
+                    colorDepth: screen.colorDepth,
+                    pixelDepth: screen.pixelDepth,
+                    availWidth: screen.availWidth,
+                    availHeight: screen.availHeight
+                },
+                
+                // Viewport information
+                viewport: {
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                    devicePixelRatio: window.devicePixelRatio
+                },
+                
+                // System information
+                cpuCores: navigator.hardwareConcurrency || 'unknown',
+                deviceMemory: navigator.deviceMemory || 'unknown',
+                maxTouchPoints: navigator.maxTouchPoints || 0,
+                
+                // Connection information
                 online: navigator.onLine,
+                connection: getConnectionInfo(),
+                
+                // Location information
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                locale: Intl.DateTimeFormat().resolvedOptions().locale,
+                
+                // Storage information
+                cookies: navigator.cookieEnabled,
+                localStorage: testLocalStorage(),
+                sessionStorage: testSessionStorage(),
+                indexedDB: testIndexedDB(),
+                
+                // Browser capabilities
+                javaEnabled: navigator.javaEnabled ? navigator.javaEnabled() : false,
+                pdfViewerEnabled: navigator.pdfViewerEnabled || false,
+                
+                // Media capabilities
+                mediaDevices: getMediaDevicesInfo(),
+                
+                // WebRTC information
+                webRTC: testWebRTC(),
+                
+                // WebGL information
+                webGL: getWebGLInfo(),
+                
+                // Font detection
+                fonts: getFonts(),
+                
+                // Canvas fingerprinting
+                canvasFingerprint: getCanvasFingerprint(),
+                
+                // Audio fingerprinting
+                audioFingerprint: getAudioFingerprint(),
+                
+                // Performance information
+                performance: getPerformanceInfo(),
+                
+                // Page information
                 url: window.location.href,
                 referrer: document.referrer || 'direct',
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                hardwareConcurrency: navigator.hardwareConcurrency,
-                deviceMemory: navigator.deviceMemory || 'unknown'
+                domain: window.location.hostname,
+                path: window.location.pathname,
+                
+                // Miscellaneous
+                doNotTrack: navigator.doNotTrack || 'unspecified',
+                pdfViewerEnabled: navigator.pdfViewerEnabled || false,
+                webdriver: navigator.webdriver || false,
+                
+                // Device type detection
+                deviceType: getDeviceType(),
+                touchSupport: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
+                
+                // Battery information (if available)
+                battery: getBatteryInfo(),
+                
+                // Plugins
+                plugins: getPluginsInfo()
             };
-
-            // Rileva browser
-            const ua = navigator.userAgent.toLowerCase();
-            if (ua.includes('chrome') && !ua.includes('edg')) data.browser = 'Chrome';
-            else if (ua.includes('firefox')) data.browser = 'Firefox';
-            else if (ua.includes('safari') && !ua.includes('chrome')) data.browser = 'Safari';
-            else if (ua.includes('edg')) data.browser = 'Edge';
-            else data.browser = 'Other';
-
-            // Rileva dispositivo
-            if (ua.includes('mobile')) data.device = 'Mobile';
-            else if (ua.includes('tablet')) data.device = 'Tablet';
-            else data.device = 'Desktop';
-
+            
             return data;
         }
+        
+        // Helper functions for data collection
+        function generateSessionId() {
+            return 'session_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+        }
+        
+        function getBrowserName() {
+            const userAgent = navigator.userAgent;
+            if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) return "Chrome";
+            if (userAgent.includes("Firefox")) return "Firefox";
+            if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) return "Safari";
+            if (userAgent.includes("Edg")) return "Edge";
+            if (userAgent.includes("Opera") || userAgent.includes("OPR")) return "Opera";
+            return "Unknown";
+        }
+        
+        function getBrowserVersion() {
+            const userAgent = navigator.userAgent;
+            const matches = userAgent.match(/(chrome|firefox|safari|edg|opera|opr)\/?\s*(\d+)/i);
+            return matches ? matches[2] : "unknown";
+        }
+        
+        function getConnectionInfo() {
+            if (navigator.connection) {
+                return {
+                    effectiveType: navigator.connection.effectiveType,
+                    downlink: navigator.connection.downlink,
+                    rtt: navigator.connection.rtt,
+                    saveData: navigator.connection.saveData
+                };
+            }
+            return "Connection API not supported";
+        }
+        
+        function getMediaDevicesInfo() {
+            if (navigator.mediaDevices) {
+                return "Media Devices API supported";
+            }
+            return "Media Devices API not supported";
+        }
+        
+        function testWebRTC() {
+            return !!(window.RTCPeerConnection || window.webkitRTCPeerConnection || 
+                     window.mozRTCPeerConnection || window.msRTCPeerConnection);
+        }
+        
+        function getWebGLInfo() {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (gl) {
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                return {
+                    vendor: gl.getParameter(debugInfo ? debugInfo.UNMASKED_VENDOR_WEBGL : gl.VENDOR),
+                    renderer: gl.getParameter(debugInfo ? debugInfo.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
+                    version: gl.getParameter(gl.VERSION)
+                };
+            }
+            return "WebGL not supported";
+        }
+        
+        function getFonts() {
+            // Common fonts to test for
+            const fonts = [
+                'Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 
+                'Georgia', 'Impact', 'Times New Roman', 'Trebuchet MS', 
+                'Verdana', 'Helvetica'
+            ];
+            
+            const availableFonts = [];
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            fonts.forEach(font => {
+                context.font = '72px monospace';
+                const baseline = context.measureText('mmmmmmmmmmlli').width;
+                context.font = '72px "' + font + '", monospace';
+                const width = context.measureText('mmmmmmmmmmlli').width;
+                if (width !== baseline) {
+                    availableFonts.push(font);
+                }
+            });
+            
+            return availableFonts;
+        }
+        
+        function getCanvasFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 200;
+            canvas.height = 50;
+            
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#f60';
+            ctx.fillRect(125, 1, 62, 20);
+            ctx.fillStyle = '#069';
+            ctx.fillText('Canvas Fingerprint', 2, 15);
+            ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+            ctx.fillText('Canvas Fingerprint', 4, 17);
+            
+            return canvas.toDataURL();
+        }
+        
+        function getAudioFingerprint() {
+            // Simple audio context test
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    const context = new AudioContext();
+                    return "AudioContext supported";
+                }
+            } catch(e) {
+                // Ignore errors
+            }
+            return "AudioContext not supported";
+        }
+        
+        function getPerformanceInfo() {
+            if (window.performance) {
+                return {
+                    memory: performance.memory ? {
+                        used: Math.round(performance.memory.usedJSHeapSize / 1048576) + ' MB',
+                        total: Math.round(performance.memory.totalJSHeapSize / 1048576) + ' MB',
+                        limit: Math.round(performance.memory.jsHeapSizeLimit / 1048576) + ' MB'
+                    } : 'not available',
+                    timing: performance.timing ? {
+                        loadTime: (performance.timing.loadEventEnd - performance.timing.navigationStart) + ' ms',
+                        domReadyTime: (performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart) + ' ms'
+                    } : 'not available'
+                };
+            }
+            return "Performance API not supported";
+        }
+        
+        function getDeviceType() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            if (userAgent.includes('mobile')) return 'Mobile';
+            if (userAgent.includes('tablet')) return 'Tablet';
+            return 'Desktop';
+        }
+        
+        function getBatteryInfo() {
+            if (navigator.getBattery) {
+                return "Battery API supported";
+            }
+            return "Battery API not supported";
+        }
+        
+        function getPluginsInfo() {
+            const plugins = [];
+            for (let i = 0; i < navigator.plugins.length; i++) {
+                plugins.push(navigator.plugins[i].name);
+            }
+            return plugins;
+        }
+        
+        function testLocalStorage() {
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+        
+        function testSessionStorage() {
+            try {
+                sessionStorage.setItem('test', 'test');
+                sessionStorage.removeItem('test');
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+        
+        function testIndexedDB() {
+            return !!window.indexedDB;
+        }
 
-        // Funzione per mostrare l'anteprima dei dati
+        // UI Functions
+        function toggleDataPanel() {
+            const panel = document.getElementById('dataPanel');
+            if (panel.style.display === 'block') {
+                panel.style.display = 'none';
+            } else {
+                panel.style.display = 'block';
+                showDataPreview();
+            }
+        }
+        
         function showDataPreview() {
             const data = collectAllData();
             const container = document.getElementById('dataPreview');
             
             let html = '';
             for (const [key, value] of Object.entries(data)) {
-                html += `<div class="data-item"><strong>${key}:</strong> ${value}</div>`;
+                if (typeof value === 'object') {
+                    html += `<div class="data-item"><strong>${key}:</strong> ${JSON.stringify(value, null, 2)}</div>`;
+                } else {
+                    html += `<div class="data-item"><strong>${key}:</strong> ${value}</div>`;
+                }
             }
             container.innerHTML = html;
         }
-
-        // Funzione per inviare al Google Form
+        
         async function collectAndSendToForm() {
             const statusDiv = document.getElementById('status');
-            statusDiv.innerHTML = '<div class="status loading">Raccolta dati in corso...</div>';
+            statusDiv.innerHTML = '<div class="status loading">Collecting system data...</div>';
+            statusDiv.style.display = 'block';
 
             try {
                 const data = collectAllData();
                 
-                // Prepara i dati per il form
+                // Prepare data for form
                 const formData = new FormData();
                 const dataString = JSON.stringify(data, null, 2);
                 
                 formData.append(FORM_FIELD_ID, dataString);
 
-                statusDiv.innerHTML = '<div class="status loading">Invio al Google Form...</div>';
+                statusDiv.innerHTML = '<div class="status loading">Sending data to server...</div>';
 
-                // Invia i dati al form
-                const response = await fetch(FORM_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: formData
-                });
-
-                // Con no-cors non possiamo leggere la response, ma assumiamo successo
-                statusDiv.innerHTML = '<div class="status success">✅ Dati inviati con successo al Google Form!</div>';
-                
-                console.log('Dati inviati:', data);
-                
-                // Mostra i dati inviati
-                showRawData();
-                document.getElementById('rawData').textContent = dataString;
-
-            } catch (error) {
-                console.error('Errore:', error);
-                statusDiv.innerHTML = `<div class="status error">❌ Errore: ${error.message}</div>`;
-            }
-        }
-
-        // Funzione per test semplice
-        async function testFormSubmission() {
-            const statusDiv = document.getElementById('status');
-            const testData = {
-                test: true,
-                timestamp: new Date().toLocaleString('it-IT'),
-                message: 'Test invio da script',
-                userAgent: navigator.userAgent.substring(0, 50) + '...'
-            };
-
-            try {
-                const formData = new FormData();
-                formData.append(FORM_FIELD_ID, JSON.stringify(testData));
-
+                // Send data to form
                 await fetch(FORM_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: formData
                 });
 
-                statusDiv.innerHTML = '<div class="status success">✅ Test inviato con successo!</div>';
-                console.log('Test data sent:', testData);
+                // With no-cors we can't read response, but assume success
+                statusDiv.innerHTML = '<div class="status success">Data successfully sent to server!</div>';
+                
+                console.log('Data sent:', data);
 
             } catch (error) {
-                statusDiv.innerHTML = `<div class="status error">❌ Errore test: ${error.message}</div>`;
+                console.error('Error:', error);
+                statusDiv.innerHTML = `<div class="status error">Error: ${error.message}</div>`;
             }
         }
-
-        // Mostra dati grezzi
-        function showRawData() {
-            const data = collectAllData();
-            document.getElementById('rawData').textContent = JSON.stringify(data, null, 2);
-            document.getElementById('rawDataSection').style.display = 'block';
+        
+        function goHome() {
+            window.location.href = '/';
+        }
+        
+        function goBack() {
+            window.history.back();
         }
 
-        // Inizializzazione
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            showDataPreview();
-            console.log('Google Form Data Collector ready!');
-            console.log('Form Field ID:', FORM_FIELD_ID);
+            console.log('Fake 404 page with data collector initialized');
         });
-
-        // Esponi le funzioni globalmente per testing
-        window.collectAllData = collectAllData;
-        window.sendToForm = collectAndSendToForm;
     </script>
 </body>
 </html>
