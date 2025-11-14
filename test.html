@@ -542,28 +542,7 @@
         function processLoadedData(data) {
             if (data && data.success && Array.isArray(data.data)) {
                 allUnits = data.data;
-                
-                // VERSIONE SEMPLICE: Mappatura fissa delle colonne
-                allUnits = allUnits.map((unit, index) => {
-                    if (Array.isArray(unit)) {
-                        return {
-                            matricola: unit[0] || `UNIT-${index+1}`,
-                            nick: unit[1] || `User-${index+1}`,
-                            tipo: unit[2] || 'Fanteria',
-                            movimento: parseInt(unit[3]) || 5,
-                            visione: parseInt(unit[4]) || 3,
-                            armatura: parseInt(unit[5]) || 2,
-                            rifornimenti: parseInt(unit[6]) || 10,
-                            componenti: unit[7] || 'N/A', // Componenti (può contenere virgole)
-                            approvata: unit[8] || 'si', // Approvazione
-                            password: unit[9] || 'hashed_password', // Password (può contenere virgole)
-                            posizione: unit[10] || 'A1'
-                        };
-                    }
-                    return unit;
-                });
-                
-                approvedUnits = allUnits.filter(unit => unit.approvata === 'si');
+                approvedUnits = allUnits.filter(unit => unit.approvata === 'SI');
                 updateStats();
                 loadUnits();
                 loadApprovedUnits();
@@ -635,9 +614,9 @@
                 // Crea dati leggibili per il form
                 let formText = '';
                 if (action === 'register') {
-                    formText = `REGISTRAZIONE - Matricola: "${data.matricola}", Password: "${data.password}", Nick: "${data.nick}", Tipo: "${data.tipo}", Movimento: "${data.movimento}", Visione: "${data.visione}", Armatura: "${data.armatura}", Rifornimenti: "${data.rifornimenti}", Componenti: "${data.componenti}"`;
+                    formText = `REGISTRAZIONE - Matricola: ${data.matricola}, Password: ${data.password}, Nick: ${data.nick}, Tipo: ${data.tipo}, Movimento: ${data.movimento}, Visione: ${data.visione}, Armatura: ${data.armatura}, Rifornimenti: ${data.rifornimenti}, Componenti: ${data.componenti}`;
                 } else if (action === 'submitOrder') {
-                    formText = `ORDINE - Matricola: "${data.matricola}", Tipo: "${data.tipoOrdine}", Dettagli: "${data.dettagli || ''}", Target: "${data.target || ''}", Quantità: "${data.quantità || ''}"`;
+                    formText = `ORDINE - Matricola: ${data.matricola}, Tipo: ${data.tipoOrdine}, Dettagli: ${data.dettagli || ''}, Target: ${data.target || ''}, Quantità: ${data.quantità || ''}`;
                 }
 
                 const input = document.createElement('input');
