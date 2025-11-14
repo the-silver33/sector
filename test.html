@@ -654,7 +654,7 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
             
             if (password !== confirmPassword) {
-                showNotification('Le password non coincidono', 'error');
+                showNotification('Le password non coincidono');
                 return;
             }
 
@@ -773,7 +773,7 @@
                     document.getElementById('orderForm').style.display = 'block';
                     showNotification('✅ Password corretta!', 'success');
                 } else {
-                    showNotification('❌ Password errata!', 'error');
+                    showNotification('❌ Password errata!', unit.password , hashedInput);
                     document.getElementById('orderForm').style.display = 'none';
                 }
             }
