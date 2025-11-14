@@ -542,7 +542,28 @@
         function processLoadedData(data) {
             if (data && data.success && Array.isArray(data.data)) {
                 allUnits = data.data;
-                approvedUnits = allUnits.filter(unit => unit.approvata === 'SI');
+                
+                // VERSIONE SEMPLICE: Mappatura fissa delle colonne
+                allUnits = allUnits.map((unit, index) => {
+                    if (Array.isArray(unit)) {
+                        return {
+                            matricola: unit[0] || `UNIT-${index+1}`,
+                            nick: unit[1] || `User-${index+1}`,
+                            tipo: unit[2] || 'Fanteria',
+                            movimento: parseInt(unit[3]) || 5,
+                            visione: parseInt(unit[4]) || 3,
+                            armatura: parseInt(unit[5]) || 2,
+                            rifornimenti: parseInt(unit[6]) || 10,
+                            componenti: unit[7] || 'N/A', // Componenti (può contenere virgole)
+                            approvata: unit[8] || 'si', // Approvazione
+                            password: unit[9] || 'hashed_password', // Password (può contenere virgole)
+                            posizione: unit[10] || 'A1'
+                        };
+                    }
+                    return unit;
+                });
+                
+                approvedUnits = allUnits.filter(unit => unit.approvata === 'si');
                 updateStats();
                 loadUnits();
                 loadApprovedUnits();
