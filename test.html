@@ -699,13 +699,13 @@
             grid.innerHTML = '';
             allUnits.forEach(unit => {
                 const card = document.createElement('div');
-                card.className = `unit-card ${unit.approvata === 'si' ? 'approved' : 'pending'}`;
+                card.className = `unit-card ${unit.approvata === 'SI' ? 'approved' : 'pending'}`;
                 
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <strong>${unit.matricola}</strong>
-                        <span class="status status-${unit.approvata === 'si' ? 'approved' : 'pending'}">
-                            ${unit.approvata === 'si' ? 'APPROVATA' : 'IN ATTESA'}
+                        <span class="status status-${unit.approvata === 'SI' ? 'approved' : 'pending'}">
+                            ${unit.approvata === 'SI' ? 'APPROVATA' : 'IN ATTESA'}
                         </span>
                     </div>
                     <div>👤 ${unit.nick}</div>
@@ -735,12 +735,12 @@
             
             filtered.forEach(unit => {
                 const card = document.createElement('div');
-                card.className = `unit-card ${unit.approvata === 'si' ? 'approved' : 'pending'}`;
+                card.className = `unit-card ${unit.approvata === 'SI' ? 'approved' : 'pending'}`;
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <strong>${unit.matricola}</strong>
-                        <span class="status status-${unit.approvata === 'si' ? 'approved' : 'pending'}">
-                            ${unit.approvata === 'si' ? 'APPROVATA' : 'IN ATTESA'}
+                        <span class="status status-${unit.approvata === 'SI' ? 'approved' : 'pending'}">
+                            ${unit.approvata === 'SI' ? 'APPROVATA' : 'IN ATTESA'}
                         </span>
                     </div>
                     <div>👤 ${unit.nick}</div>
@@ -916,7 +916,7 @@
 
         function updateStats() {
             const total = allUnits.length;
-            const approved = allUnits.filter(u => u.approvata === 'si').length;
+            const approved = allUnits.filter(u => u.approvata === 'SI').length;
             const pending = total - approved;
 
             document.getElementById('totalUnits').textContent = total;
