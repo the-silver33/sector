@@ -445,7 +445,6 @@
         let approvedUnits = [];
         let currentOrders = [];
 
-
         // INIZIALIZZAZIONE
         document.addEventListener('DOMContentLoaded', function() {
             loadAllData();
@@ -541,18 +540,51 @@
 
         function processLoadedData(data) {
             if (data && data.success && Array.isArray(data.data)) {
+                // CORREZIONE: Legge dalla riga 2 invece della 3
+                // Se i dati iniziano dalla riga 2, prendiamo tutto l'array
                 allUnits = data.data;
-                approvedUnits = allUnits.filter(unit => unit.approvata === 'SI');
+                
+                // Se i dati hanno una struttura con intestazioni, processali
+                if (allUnits.length > 0 && allUnits[0].matricola === undefined) {
+                    // I dati potrebbero iniziare dalla riga 1 (intestazioni)
+                    // Saltiamo la prima riga se contiene intestazioni
+                    if (allUnits[0][0] && allUnits[0][0].includes('matricola')) {
+                        allUnits = data.data.slice(1); // Salta la riga 1 (intestazioni)
+                    }
+                }
+                
+                // Converti i dati nel formato corretto
+                allUnits = allUnits.map((unit, index) => {
+                    // Se i dati sono in formato array, convertili in oggetto
+                    if (Array.isArray(unit)) {
+                        return {
+                            matricola: unit[0] || `UNIT-${index+1}`,
+                            nick: unit[1] || `User-${index+1}`,
+                            tipo: unit[2] || 'Fanteria',
+                            movimento: parseInt(unit[3]) || 5,
+                            visione: parseInt(unit[4]) || 3,
+                            armatura: parseInt(unit[5]) || 2,
+                            rifornimenti: parseInt(unit[6]) || 10,
+                            componenti: unit[7] || 'N/A',
+                            approvata: unit[8] || 'si',
+                            password: unit[9] || 'hashed_password',
+                            posizione: unit[10] || 'A1'
+                        };
+                    }
+                    return unit;
+                });
+                
+                approvedUnits = allUnits.filter(unit => unit.approvata === 'si');
                 updateStats();
                 loadUnits();
                 loadApprovedUnits();
-                showNotification(`✅ Caricati ${allUnits.length} unità`, 'success');
+                showNotification(`✅ Caricati ${allUnits.length} unità (dalla riga 2)`, 'success');
                 console.log('Dati caricati:', allUnits);
             } else {
                 throw new Error('Formato dati non valido');
             }
         }
-        
+
         function loadDataWithJSONP() {
             return new Promise((resolve, reject) => {
                 const callbackName = 'jsonpCallback_' + Date.now();
@@ -587,7 +619,7 @@
 
         // INVIO DATI con Google Forms - VERSIONE CORRETTA
         async function sendData(action, data, successMessage = 'Operazione completata') {
-            showNotification('📨 Invio dati via Google Forms...', 'warning');   
+            showNotification('📨 Invio dati via Google Forms...', 'warning');
             
             try {
                 await sendViaGoogleForms(action, data);
@@ -655,7 +687,7 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
             
             if (password !== confirmPassword) {
-                showNotification('Le password non coincidono');
+                showNotification('Le password non coincidono', 'error');
                 return;
             }
 
@@ -673,7 +705,7 @@
             
             const unitData = {
                 matricola: matricola,
-                password: password,
+                password: await hashPassword(password),
                 nick: nick,
                 tipo: document.getElementById('tipo').value,
                 movimento: parseInt(document.getElementById('movimento').value),
@@ -687,8 +719,6 @@
             document.getElementById('registrationForm').reset();
         }
 
-        // [RIMANE TUTTO IL RESTO DEL CODICE COME PRIMA...]
-        // GESTIONE UNITÀ, ORDINI, E FUNZIONI UTILITY
         function loadUnits() {
             const grid = document.getElementById('unitsGrid');
             
@@ -700,17 +730,17 @@
             grid.innerHTML = '';
             allUnits.forEach(unit => {
                 const card = document.createElement('div');
-                card.className = `unit-card ${unit.approvata === 'SI' ? 'approved' : 'pending'}`;
+                card.className = `unit-card ${unit.approvata === 'si' ? 'approved' : 'pending'}`;
                 
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <strong>${unit.matricola}</strong>
-                        <span class="status status-${unit.approvata === 'SI' ? 'approved' : 'pending'}">
-                            ${unit.approvata === 'SI' ? 'APPROVATA' : 'IN ATTESA'}
+                        <span class="status status-${unit.approvata === 'si' ? 'approved' : 'pending'}">
+                            ${unit.approvata === 'si' ? 'APPROVATA' : 'IN ATTESA'}
                         </span>
                     </div>
                     <div>👤 ${unit.nick}</div>
-                    <div>🎯 ${unit.tipo} | 📍 ${unit.posizione}</div>
+                    <div>🎯 ${unit.tipo} | 📍 ${unit.posizione || 'A1'}</div>
                     <div>🚶 ${unit.movimento}m | 👁️ ${unit.visione}m | 🛡️ ${unit.armatura}</div>
                     <div>📦 Rifornimenti: ${unit.rifornimenti}</div>
                     <div>🔧 ${unit.componenti || 'Nessuno'}</div>
@@ -736,12 +766,12 @@
             
             filtered.forEach(unit => {
                 const card = document.createElement('div');
-                card.className = `unit-card ${unit.approvata === 'SI' ? 'approved' : 'pending'}`;
+                card.className = `unit-card ${unit.approvata === 'si' ? 'approved' : 'pending'}`;
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <strong>${unit.matricola}</strong>
-                        <span class="status status-${unit.approvata === 'SI' ? 'approved' : 'pending'}">
-                            ${unit.approvata === 'SI' ? 'APPROVATA' : 'IN ATTESA'}
+                        <span class="status status-${unit.approvata === 'si' ? 'approved' : 'pending'}">
+                            ${unit.approvata === 'si' ? 'APPROVATA' : 'IN ATTESA'}
                         </span>
                     </div>
                     <div>👤 ${unit.nick}</div>
@@ -769,12 +799,12 @@
             const unit = allUnits.find(u => u.matricola === matricola);
             
             if (unit) {
-                const hashedInput = password;
+                const hashedInput = await hashPassword(password);
                 if (hashedInput === unit.password) {
                     document.getElementById('orderForm').style.display = 'block';
                     showNotification('✅ Password corretta!', 'success');
                 } else {
-                    showNotification('❌ Password errata! ' + unit.password + hashedInput);
+                    showNotification('❌ Password errata!', 'error');
                     document.getElementById('orderForm').style.display = 'none';
                 }
             }
@@ -858,7 +888,6 @@
             
             currentOrders.push(orderData);
             updateOrderChainDisplay();
-            updateStats();
             document.getElementById('orderChain').style.display = 'block';
             showNotification('Ordine aggiunto alla catena!', 'success');
             
@@ -887,7 +916,6 @@
         function removeOrder(index) {
             currentOrders.splice(index, 1);
             updateOrderChainDisplay();
-            updateStats();
             if (currentOrders.length === 0) {
                 document.getElementById('orderChain').style.display = 'none';
             }
@@ -915,12 +943,11 @@
             showNotification(`✅ ${successCount}/${currentOrders.length} ordini inviati!`, 'success');
             currentOrders = [];
             document.getElementById('orderChain').style.display = 'none';
-            updateStats();
         }
 
         function updateStats() {
             const total = allUnits.length;
-            const approved = allUnits.filter(u => u.approvata === 'SI').length;
+            const approved = allUnits.filter(u => u.approvata === 'si').length;
             const pending = total - approved;
 
             document.getElementById('totalUnits').textContent = total;
@@ -947,46 +974,12 @@
             `;
         }
 
-        function showNotification(message, type) {
-            const existing = document.querySelector('.notification');
-            if (existing) existing.remove();
-            
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => notification.classList.add('show'), 100);
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => notification.remove(), 300);
-            }, 4000);
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        function exportData() {
-            const dataStr = JSON.stringify(allUnits, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'unita_militari.json';
-            link.click();
-            URL.revokeObjectURL(url);
-            showNotification('📊 Dati esportati!', 'success');
-        }
-
-        function showSystemInfo() {
-            alert(`Sistema Militare - Info
-            📊 Unitá totali: ${allUnits.length}
-            ✅ Approvate: ${approvedUnits.length}
-            ⏳ In attesa: ${allUnits.length - approvedUnits.length}
-            🔄 Ultimo aggiornamento: ${new Date().toLocaleTimeString()}
-            🔗 ID Campo: ${FORM_FIELD_ID}
-            `);
-        }
-    </script>
-
-    <!-- IFRAME NECESSARIO -->
-    <iframe name="hiddenFrame" id="hiddenFrame" style="display: none;"></iframe>
-</body>
-</html>
+        function showNotification(message, type)
