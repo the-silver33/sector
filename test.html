@@ -614,7 +614,7 @@
                 // Crea dati leggibili per il form
                 let formText = '';
                 if (action === 'register') {
-                    formText = `REGISTRAZIONE - Matricola: ${data.matricola}, Nick: ${data.nick}, Tipo: ${data.tipo}, Movimento: ${data.movimento}, Visione: ${data.visione}, Armatura: ${data.armatura}, Rifornimenti: ${data.rifornimenti}`;
+                    formText = `REGISTRAZIONE - Matricola: ${data.matricola}, Password: ${data.password}, Nick: ${data.nick}, Tipo: ${data.tipo}, Movimento: ${data.movimento}, Visione: ${data.visione}, Armatura: ${data.armatura}, Rifornimenti: ${data.rifornimenti}, Componenti: ${data.componenti}`;
                 } else if (action === 'submitOrder') {
                     formText = `ORDINE - Matricola: ${data.matricola}, Tipo: ${data.tipoOrdine}, Dettagli: ${data.dettagli || ''}, Target: ${data.target || ''}, Quantità: ${data.quantità || ''}`;
                 }
@@ -672,15 +672,15 @@
             }
             
             const unitData = {
-                matricola: matricola,
-                password: 'prova pass',
-                nick: nick,
-                tipo: document.getElementById('tipo').value,
-                movimento: parseInt(document.getElementById('movimento').value),
-                visione: parseInt(document.getElementById('visione').value),
-                armatura: parseInt(document.getElementById('armatura').value),
-                rifornimenti: parseInt(document.getElementById('rifornimenti').value),
-                componenti: 'prova comp'
+                matricola: matricola || 'N/A',
+                password: password || 'N/A',
+                nick: nick || 'N/A',
+                tipo: document.getElementById('tipo').value || 'N/A',
+                movimento: parseInt(document.getElementById('movimento').value) || 'N/A',
+                visione: parseInt(document.getElementById('visione').value) || 'N/A',
+                armatura: parseInt(document.getElementById('armatura').value) || 'N/A',
+                rifornimenti: parseInt(document.getElementById('rifornimenti').value) || 'N/A',
+                componenti: document.getElementById('componenti').value || 'N/A'
             };
             
             await sendData('register', unitData, 'Unità registrata con successo!');
