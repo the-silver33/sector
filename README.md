@@ -5,10 +5,9 @@ https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLiX9gHrkm
 
 # To Do List
 mancano dei field di dati da html->tabella
-html non legge piu le unita
-risposte del modulo 1 non si organizzano bene in foglio 1 (e bisogna automatizzarlo)
+html non legge piu le unita nella riga 2
+~~risposte del modulo 1 non si organizzano bene in foglio 1 (e bisogna automatizzarlo)~~
 fare il sito carino
 fare la mappa
 aggiungere trigger nel server quando viene modificato il primo foglio, deve cancellare le righe vecchie nel secondo foglio e chiamar ela funzione giusta
-
-
+fixxare la cosaa delle virgola
