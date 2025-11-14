@@ -673,14 +673,14 @@
             
             const unitData = {
                 matricola: matricola,
-                password: password,
+                password: 'prova pass',
                 nick: nick,
                 tipo: document.getElementById('tipo').value,
                 movimento: parseInt(document.getElementById('movimento').value),
                 visione: parseInt(document.getElementById('visione').value),
                 armatura: parseInt(document.getElementById('armatura').value),
                 rifornimenti: parseInt(document.getElementById('rifornimenti').value),
-                componenti: document.getElementById('componenti').value || 'N/A'
+                componenti: 'prova comp'
             };
             
             await sendData('register', unitData, 'Unità registrata con successo!');
