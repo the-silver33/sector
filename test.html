@@ -614,9 +614,9 @@
                 // Crea dati leggibili per il form
                 let formText = '';
                 if (action === 'register') {
-                    formText = `REGISTRAZIONE - Matricola: ${data.matricola}, Password: ${data.password}, Nick: ${data.nick}, Tipo: ${data.tipo}, Movimento: ${data.movimento}, Visione: ${data.visione}, Armatura: ${data.armatura}, Rifornimenti: ${data.rifornimenti}, Componenti: ${data.componenti}`;
+                    formText = `REGISTRAZIONE - Matricola: "${data.matricola}", Password: "${data.password}", Nick: "${data.nick}", Tipo: "${data.tipo}", Movimento: "${data.movimento}", Visione: "${data.visione}", Armatura: "${data.armatura}", Rifornimenti: "${data.rifornimenti}", Componenti: "${data.componenti}"`;
                 } else if (action === 'submitOrder') {
-                    formText = `ORDINE - Matricola: ${data.matricola}, Tipo: ${data.tipoOrdine}, Dettagli: ${data.dettagli || ''}, Target: ${data.target || ''}, Quantità: ${data.quantità || ''}`;
+                    formText = `ORDINE - Matricola: "${data.matricola}", Tipo: "${data.tipoOrdine}", Dettagli: "${data.dettagli || ''}", Target: "${data.target || ''}", Quantità: "${data.quantità || ''}"`;
                 }
 
                 const input = document.createElement('input');
