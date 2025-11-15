@@ -87,55 +87,6 @@
             color: var(--accent-light);
         }
         
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            text-align: center;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            border-top: 4px solid var(--accent);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        
-        .stat-card::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: var(--accent);
-        }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-label {
-            color: var(--secondary);
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
         .tabs-container {
             background: white;
             border-radius: var(--border-radius);
@@ -253,22 +204,6 @@
             box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
         }
         
-        .input-with-icon {
-            position: relative;
-        }
-        
-        .input-with-icon i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-        
-        .input-with-icon input {
-            padding-left: 45px;
-        }
-        
         button {
             background: var(--accent);
             color: white;
@@ -308,18 +243,6 @@
         .btn-danger {
             background: var(--danger);
             box-shadow: 0 2px 4px rgba(229, 62, 62, 0.3);
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--accent);
-            color: var(--accent);
-            box-shadow: none;
-        }
-        
-        .btn-outline:hover {
-            background: var(--accent);
-            color: white;
         }
         
         .units-grid {
@@ -453,35 +376,6 @@
             background: var(--accent);
         }
         
-        .search-box {
-            background: var(--gray-light);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow);
-        }
-        
-        .orders-list {
-            margin-top: 1.5rem;
-        }
-        
-        .order-item {
-            background: white;
-            padding: 1.5rem;
-            margin: 0.8rem 0;
-            border-radius: var(--border-radius);
-            border-left: 4px solid var(--accent);
-            box-shadow: var(--shadow);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .order-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
         .loading {
             text-align: center;
             padding: 3rem;
@@ -540,6 +434,38 @@
             color: var(--accent);
         }
         
+        .units-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--gray-light);
+            border-radius: var(--border-radius);
+        }
+        
+        .unit-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .unit-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .unit-stat-label {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .header-content {
@@ -571,6 +497,10 @@
             .unit-details {
                 grid-template-columns: 1fr;
             }
+            
+            .units-stats {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -588,21 +518,6 @@
             </div>
         </header>
 
-        <div class="stats" id="statsContainer">
-            <div class="stat-card">
-                <div class="stat-number">0</div>
-                <div class="stat-label">Unitá Totali</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">0</div>
-                <div class="stat-label">Approvate</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">0</div>
-                <div class="stat-label">In Attesa</div>
-            </div>
-        </div>
-
         <div class="tabs-container">
             <div class="tabs">
                 <div class="tab active" data-tab="register">
@@ -613,9 +528,6 @@
                 </div>
                 <div class="tab" data-tab="orders">
                     <i class="fas fa-paper-plane"></i> Invia Ordini
-                </div>
-                <div class="tab" data-tab="manage">
-                    <i class="fas fa-cog"></i> Gestione Sistema
                 </div>
             </div>
 
@@ -723,10 +635,14 @@
                     <h2>Unità Registrate</h2>
                 </div>
                 
-                <div class="search-box">
-                    <div class="input-with-icon">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="searchUnits" placeholder="Cerca per matricola o nick...">
+                <div class="units-stats">
+                    <div class="unit-stat">
+                        <div class="unit-stat-value" id="approvedCount">0</div>
+                        <div class="unit-stat-label">Approvate</div>
+                    </div>
+                    <div class="unit-stat">
+                        <div class="unit-stat-value" id="pendingCount">0</div>
+                        <div class="unit-stat-label">In Attesa</div>
                     </div>
                 </div>
                 
@@ -800,56 +716,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Gestione -->
-            <div id="manage" class="tab-content">
-                <div class="section-title">
-                    <i class="fas fa-cog"></i>
-                    <h2>Gestione Sistema</h2>
-                </div>
-                
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalUnits">0</div>
-                        <div class="stat-label">Unitá Totali</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="approvedUnits">0</div>
-                        <div class="stat-label">Approvate</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="pendingUnits">0</div>
-                        <div class="stat-label">In Attesa</div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-title">
-                        <i class="fas fa-tools"></i> Azioni di Sistema
-                    </div>
-                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                        <button onclick="exportData()" class="btn-warning">
-                            <i class="fas fa-file-export"></i> Esporta Dati
-                        </button>
-                        <button onclick="showSystemInfo()" class="btn">
-                            <i class="fas fa-info-circle"></i> Info Sistema
-                        </button>
-                        <button class="btn-outline">
-                            <i class="fas fa-download"></i> Backup
-                        </button>
-                        <button class="btn-outline">
-                            <i class="fas fa-upload"></i> Ripristina
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-title">
-                        <i class="fas fa-chart-bar"></i> Statistiche Avanzate
-                    </div>
-                    <p>Qui verranno visualizzate statistiche dettagliate e report del sistema.</p>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -906,30 +772,10 @@
         function loadAllData() {
             showNotification('Dati aggiornati con successo', 'success');
             
-            // Aggiorna statistiche
-            document.querySelectorAll('.stat-number').forEach((stat, index) => {
-                const numbers = [24, 18, 6];
-                animateValue(stat, 0, numbers[index], 1000);
-            });
-            
             // Simula caricamento unità
             setTimeout(() => {
                 loadUnits();
             }, 500);
-        }
-        
-        // Animazione per i valori numerici
-        function animateValue(element, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                element.innerHTML = Math.floor(progress * (end - start) + start);
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
         }
         
         // Caricamento unità
@@ -964,11 +810,18 @@
                     <div class="empty-state">
                         <i class="fas fa-users"></i>
                         <h3>Nessuna unità trovata</h3>
-                        <p>Non ci sono unità che corrispondono ai criteri di ricerca.</p>
+                        <p>Non ci sono unità registrate nel sistema.</p>
                     </div>
                 `;
                 return;
             }
+            
+            // Calcola statistiche
+            const approvedCount = units.filter(unit => unit.status === 'approved').length;
+            const pendingCount = units.filter(unit => unit.status === 'pending').length;
+            
+            document.getElementById('approvedCount').textContent = approvedCount;
+            document.getElementById('pendingCount').textContent = pendingCount;
             
             unitsGrid.innerHTML = units.map(unit => `
                 <div class="unit-card ${unit.status === 'approved' ? 'approved' : 'pending'}">
@@ -1003,11 +856,11 @@
                         </div>
                     </div>
                     <div style="margin-top: 15px; display: flex; gap: 10px;">
-                        <button class="btn-outline" style="padding: 8px 15px; font-size: 0.9rem;">
-                            <i class="fas fa-eye"></i> Dettagli
-                        </button>
-                        <button class="btn-outline" style="padding: 8px 15px; font-size: 0.9rem;">
+                        <button class="btn-success" style="padding: 8px 15px; font-size: 0.9rem;">
                             <i class="fas fa-edit"></i> Modifica
+                        </button>
+                        <button class="btn-danger" style="padding: 8px 15px; font-size: 0.9rem;">
+                            <i class="fas fa-trash"></i> Elimina
                         </button>
                     </div>
                 </div>
@@ -1042,26 +895,11 @@
             showNotification('Ordini inviati con successo!', 'success');
         }
         
-        function exportData() {
-            showNotification('Dati esportati con successo', 'success');
-        }
-        
-        function showSystemInfo() {
-            showNotification('Informazioni di sistema caricate', 'info');
-        }
-        
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
             loadAllData();
-            
-            // Aggiungi funzionalità di ricerca
-            document.getElementById('searchUnits').addEventListener('input', function() {
-                // In un'implementazione reale, qui filtraremmo le unità
-                if (this.value.length > 2) {
-                    showNotification(`Ricerca per: ${this.value}`, 'info');
-                }
-            });
         });
+
 
         // URL DELLE API
         const API_URL = 'https://script.google.com/macros/s/AKfycbzOnva7d51fQGtk6tEB0Wk-1GqyqLSXbuapSf32Hqu29uaIIhExwq07F9sHITYxagI/exec';
