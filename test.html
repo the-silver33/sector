@@ -725,27 +725,6 @@
     </div>
 
     <script>
-        // Funzione per mostrare notifiche
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            const notificationText = document.getElementById('notificationText');
-            
-            notification.className = `notification ${type}`;
-            notificationText.textContent = message;
-            
-            // Icona in base al tipo
-            const icon = notification.querySelector('i');
-            icon.className = type === 'success' ? 'fas fa-check-circle' :
-                            type === 'error' ? 'fas fa-exclamation-circle' :
-                            type === 'warning' ? 'fas fa-exclamation-triangle' :
-                            'fas fa-info-circle';
-            
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 4000);
-        }
         
         // Gestione delle tab
         document.querySelectorAll('.tab').forEach(tab => {
