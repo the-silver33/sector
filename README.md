@@ -13,7 +13,7 @@ fare la mappa (mappa centrale+tendina a sinistra con le unita)
 ~~aggiungere trigger nel server quando viene modificato il primo foglio, deve cancellare le righe vecchie nel secondo foglio e chiamar ela funzione giusta~~
 ~~fixxare la cosaa delle virgola~~
 ce un bug dove al posto di mandare lunita giusta manda quella precedente (html)
-fare cleaning di tutti i codici (input.html/map.html/appsscript) molte funzioni sono rindondanti o non servono
+fare cleaning di tutti i codici (input.html/map.html/appsscript) molte funzioni sono rindondanti o non servono (la funzione hash esiste ancora ma non fa niente)
 staccare i codici .gs dal .html
 
 
