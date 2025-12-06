@@ -40,8 +40,8 @@
         .grid-container {
             margin-top: 60px;
             display: grid;
-            grid-template-columns: repeat(80, 1fr);
-            grid-template-rows: repeat(60, 1fr);
+            grid-template-columns: repeat(var(--cols), 1fr);
+            grid-template-rows: repeat(var(--rows), 1fr);
             gap: 1px;
             width: 100%;
             max-width: 1600px;
@@ -73,10 +73,15 @@
     </div>
 
     <script>
-        // Creazione della griglia 60x80
-        function createGrid(x, y) {
+
+        function createGrid(cols, rows) {
             const gridContainer = document.getElementById('grid');
-            const totalCells = x * y;
+            const totalCells = cols * rows;
+            
+            // creo la griglia in base alle dimensioni necessarie
+            const grid = document.querySelector('.grid');
+            grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
             
             for (let i = 0; i < totalCells; i++) {
                 const cell = document.createElement('div');
