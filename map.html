@@ -40,8 +40,8 @@
         .grid-container {
             margin-top: 60px;
             display: grid;
-            grid-template-columns: repeat(var(--cols), 1fr);
-            grid-template-rows: repeat(var(--rows), 1fr);
+            grid-template-columns: repeat(var(--cols), 40px);
+            grid-template-rows: repeat(var(--rows), 40px);
             gap: 1px;
             margin: 10px auto;
             width: 100%;
@@ -53,6 +53,8 @@
             background-color: white;
             border: 1px solid #e0e0e0;
             transition: background-color 0.2s;
+            width: 40px;
+            height: 40px;
         }
 
         .grid-cell:hover {
@@ -86,7 +88,7 @@
                 const cell = document.createElement('div');
                 cell.className = 'grid-cell';
                 cell.setAttribute('data-index', i);
-                cell.textContent= `num: ${{i}}`;
+                cell.textContent= `num: ${i}`;
                 
                 // Aggiungi un click handler per ogni cella (opzionale)
                 cell.addEventListener('click', function() {
@@ -103,7 +105,7 @@
         }
 
         // Crea la griglia quando la pagina è caricata
-        window.addEventListener('DOMContentLoaded', createGrid(10, 20));
+        window.addEventListener('DOMContentLoaded', () => createGrid(10, 20));
     </script>
 </body>
 </html>
