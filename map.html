@@ -64,88 +64,122 @@
 	</div>
 
 	<script>
-		const gridContainer = document.getElementById('grid');
-		let zoom = 1;
 
-		function createGrid(rows, cols, data) {
-			gridContainer.innerHTML = '';
-			gridContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-			gridContainer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+const gridContainer = document.getElementById('grid');
+let zoom = 1;
 
-			for (let r = 0; r < rows; r++) {
-				for (let c = 0; c < cols; c++) {
-					const cell = document.createElement('div');
-					cell.className = 'grid-cell';
-					cell.textContent = data[r] && data[r][c] ? data[r][c] : '';
-					gridContainer.appendChild(cell);
-				}
-			}
-		}
+/* ---------------------------
+    CREA LA GRIGLIA DINAMICA
+----------------------------*/
+function createGrid(rows, cols) {
+  gridContainer.innerHTML = "";
 
-		// Funzione per il bottone
-		function handleButtonClick() {
-			window.location.href = 'https://the-silver33.github.io/sector/test.html';
-		}
+  const CELL_SIZE = 20; // celle quadrate
 
-		// Funzione zoom
-		let zoomContainer = document.getElementById("zoom-container");
-		zoomContainer.addEventListener("wheel", e => {
-			if (!e.ctrlKey) return;   // evita interferenze con lo scroll normale
-			e.preventDefault();
+  gridContainer.style.gridTemplateColumns = `repeat(${cols}, ${CELL_SIZE}px)`;
+  gridContainer.style.gridAutoRows = `${CELL_SIZE}px`;
 
-			zoom += e.deltaY * -0.001;
-			zoom = Math.min(Math.max(zoom, 1), 3); // limiti
+  for (let i = 0; i < rows * cols; i++) {
+    const cell = document.createElement("div");
+    cell.className = "grid-cell";
+    gridContainer.appendChild(cell);
+  }
+}
 
-			gridContainer.style.transform = `scale(${zoom})`;
-		});
+/* ---------------------------
+      RIEMPI LA GRIGLIA
+----------------------------*/
+function fillGrid(data, rows, cols) {
+  const cells = gridContainer.children;
 
-		document.addEventListener("keydown", (e) => {
-			const step = 50;  // distanza scroll ad ogni pressione
-
-			switch (e.key.toLowerCase()) {
-				case "arrowup": case "w":
-					zoomContainer.scrollTop -= step;
-					break;
-				case "arrowdown": case "s":
-					zoomContainer.scrollTop += step;
-					break;
-				case "arrowleft": case "a":
-					zoomContainer.scrollLeft -= step;
-					break;
-				case "arrowright": case "d":
-					zoomContainer.scrollLeft += step;
-					break;
-			}
-		});
-
-		// --- Google Sheet ---
-    const SHEET_ID = '1Uoz5xYisxmd7uUUIFrsAX-yZ4mckYSUdSopG2pNaL1k';
-    const SHEET_NAME = 'mappa';
-
-    async function loadSheetData() {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=AIzaSyAjSe4WyZIJyGk5HLMMytZcm_s4xQJKNU4`;
-      try {
-        const res = await fetch(url);
-        const json = await res.json();
-		console.log(json)
-        const data = json.values;
-		console.log(data)
-        const rows = data.length;
-        let cols = 0;
-		for (let r = 0; r < data.length; r++) { //serve per prendere la riga con più colonne
-		  if (Array.isArray(data[r]) && data[r].length > cols) {
-		    cols = data[r].length;
-		  }
-		}
-        createGrid(rows, cols, data);
-      } catch (err) {
-        console.error('Errore caricamento Google Sheet', err);
-      }
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const index = r * cols + c;
+      const value = data[r] && data[r][c] ? data[r][c] : "";
+      cells[index].textContent = value;
     }
+  }
+}
 
-		// popola la griglia
-    window.addEventListener('DOMContentLoaded', loadSheetData);
-	</script>
+/* ---------------------------
+      BOTTONE DI TEST
+----------------------------*/
+function handleButtonClick() {
+  window.location.href = 'https://the-silver33.github.io/sector/test.html';
+}
+
+/* ---------------------------
+     ZOOM + MOVIMENTO
+----------------------------*/
+let zoomContainer = document.getElementById("zoom-container");
+
+zoomContainer.addEventListener("wheel", e => {
+  if (!e.ctrlKey) return;
+  e.preventDefault();
+
+  zoom += e.deltaY * -0.001;
+  zoom = Math.min(Math.max(zoom, 1), 3);
+
+  gridContainer.style.transform = `scale(${zoom})`;
+});
+
+document.addEventListener("keydown", (e) => {
+  const step = 50;
+
+  switch (e.key.toLowerCase()) {
+    case "arrowup": case "w":
+      zoomContainer.scrollTop -= step;
+      break;
+    case "arrowdown": case "s":
+      zoomContainer.scrollTop += step;
+      break;
+    case "arrowleft": case "a":
+      zoomContainer.scrollLeft -= step;
+      break;
+    case "arrowright": case "d":
+      zoomContainer.scrollLeft += step;
+      break;
+  }
+});
+
+/* ---------------------------
+       GOOGLE SHEET
+----------------------------*/
+
+// ID del foglio
+const SHEET_ID = "1Uoz5xYisxmd7uUUIFrsAX-yZ4mckYSUdSopG2pNaL1k";
+const SHEET_NAME = "mappa";
+const API_KEY = "AIzaSyAjSe4WyZIJyGk5HLMMytZcm_s4xQJKNU4";
+
+async function loadSheetData() {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
+
+    const data = json.values || [];
+
+    // Calcolo dinamico righe/colonne
+    const rows = data.length;
+    const cols = Math.max(...data.map(r => r.length));
+
+    console.log("Righe:", rows, "Colonne:", cols);
+
+    // Crea e riempi
+    createGrid(rows, cols);
+    fillGrid(data, rows, cols);
+
+  } catch (err) {
+    console.error("Errore caricamento Google Sheet:", err);
+  }
+}
+
+// carica dati al caricamento pagina
+window.addEventListener('DOMContentLoaded', loadSheetData);
+
+</script>
+
 </body>
 
 </html>
