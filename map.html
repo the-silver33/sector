@@ -39,7 +39,6 @@
 
         .grid-container {
             display: grid;
-            width: auto;
             gap: 1px;
             margin: 10px auto;
             border: 1px solid #ccc;
@@ -73,13 +72,12 @@
     <script>
 
         function createGrid(cols, rows) {
-            const gridContainer = document.getElementById('grid');
             const totalCells = cols * rows;
             
             // creo la griglia in base alle dimensioni necessarie
-            const grid = document.querySelector('.grid-container');
-            grid.style.gridTemplateColumns = `repeat(${cols}, 40px)`;
-            grid.style.gridTemplateRows = `repeat(${rows}, 40px)`;
+            const gridContainer = document.getElementById('grid');
+            gridContainer.style.gridTemplateColumns = `repeat(${cols}, 40px)`;
+            gridContainer.style.gridTemplateRows = `repeat(${rows}, 40px)`;
             
             for (let i = 1; i < totalCells+1; i++) {
                 const cell = document.createElement('div');
