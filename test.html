@@ -205,7 +205,7 @@
                             <!-- Dettagli dinamici -->
                         </div>
                         
-                        <button type="button" onclick="addOrderToChain()" class="btn-success">
+                        <button onclick="addOrderToChain()" class="btn-success">
                             <i class="fas fa-plus"></i> Aggiungi alla Catena
                         </button>
                         
@@ -255,7 +255,31 @@
         // Caricamento dati
         async function loadAllData() {
             showNotification('🔄 Caricamento dati in corso...', 'warning');
-            // I dati vengono caricati tramite altri metodi (es. Google Sheets API)
+            try {
+                console.log('Tentativo fetch diretto...');
+                const response = await fetch(API_URL, {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    processLoadedData(data);
+                    return;
+                }
+            } catch (fetchError) {
+                console.log('Fetch diretto fallito:', fetchError);
+            }
+            
+            try {
+                console.log('Tentativo JSONP...');
+                await loadDataWithJSONP();
+            } catch (jsonpError) {
+                console.log('JSONP fallito:', jsonpError);
+            }
         }
         
         // Visualizza unità nella griglia
