@@ -793,7 +793,7 @@ function CheckOrderValidity(order) {
             }
             
             if (errorMessage) {
-                showNotification('❌ ' + errorMessage, 'error');
+                showNotification('❌ ' + errorMessage, 'info');
                 return false;
             } else {
                 showNotification('✅ Ordine aggiunto alla catena!', 'success');
