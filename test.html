@@ -348,13 +348,6 @@
                 </div>
             `).join('');
         }
-        
-        // Funzioni placeholder per altre azioni
-        function addOrderToChain() {
-            showNotification('Ordine aggiunto alla catena', 'info');
-            document.getElementById('orderChain').style.display = 'block';
-        }
-
 
         // URL DELLE API
         const API_URL = 'https://script.google.com/macros/s/AKfycbzOnva7d51fQGtk6tEB0Wk-1GqyqLSXbuapSf32Hqu29uaIIhExwq07F9sHITYxagI/exec';
@@ -717,25 +710,71 @@
                 quantità: ''
             };
             
+            // Validate and collect order details based on type
+            let isValid = true;
+            let errorMessage = '';
+            
             switch(tipoOrdine) {
                 case 'muoversi':
-                    orderData.dettagli = document.getElementById('orderDestination')?.value || '';
+                    const destination = document.getElementById('orderDestination')?.value?.trim();
+                    if (!destination) {
+                        isValid = false;
+                        errorMessage = 'Inserisci la casella destinazione';
+                    } else {
+                        orderData.dettagli = destination;
+                    }
                     break;
                 case 'salire':
                 case 'scendere':
-                    orderData.dettagli = document.getElementById('orderPosition')?.value || '';
+                    const position = document.getElementById('orderPosition')?.value?.trim();
+                    if (!position) {
+                        isValid = false;
+                        errorMessage = 'Inserisci la posizione';
+                    } else {
+                        orderData.dettagli = position;
+                    }
                     break;
                 case 'attivare':
                 case 'ricaricare':
-                    orderData.dettagli = document.getElementById('orderComponent')?.value || '';
+                    const component = document.getElementById('orderComponent')?.value?.trim();
+                    if (!component) {
+                        isValid = false;
+                        errorMessage = 'Inserisci il nome del componente';
+                    } else {
+                        orderData.dettagli = component;
+                    }
                     break;
                 case 'consumare':
-                    orderData.quantità = document.getElementById('orderQuantity')?.value || '';
+                    const quantity = document.getElementById('orderQuantity')?.value?.trim();
+                    if (!quantity || parseInt(quantity) <= 0) {
+                        isValid = false;
+                        errorMessage = 'Inserisci una quantità valida';
+                    } else {
+                        orderData.quantità = quantity;
+                    }
                     break;
                 case 'cedere':
-                    orderData.target = document.getElementById('orderTarget')?.value || '';
-                    orderData.quantità = document.getElementById('orderQuantity')?.value || '';
+                    const target = document.getElementById('orderTarget')?.value?.trim();
+                    const cedeQuantity = document.getElementById('orderQuantity')?.value?.trim();
+                    if (!target) {
+                        isValid = false;
+                        errorMessage = 'Seleziona l\'unità destinataria';
+                    } else if (!cedeQuantity || parseInt(cedeQuantity) <= 0) {
+                        isValid = false;
+                        errorMessage = 'Inserisci una quantità valida';
+                    } else {
+                        orderData.target = target;
+                        orderData.quantità = cedeQuantity;
+                    }
                     break;
+                case 'cura':
+                    // No additional fields needed for cura
+                    break;
+            }
+            
+            if (!isValid) {
+                showNotification(errorMessage, 'error');
+                return;
             }
             
             currentOrders.push(orderData);
@@ -744,6 +783,7 @@
             document.getElementById('orderChain').style.display = 'block';
             showNotification('Ordine aggiunto alla catena!', 'success');
             
+            // Reset form
             document.getElementById('orderType').value = '';
             document.getElementById('orderDetails').innerHTML = '';
         }
