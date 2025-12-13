@@ -43,3 +43,5 @@ https://the-silver33.github.io/sector/test.html
 * negli html barra di ricerca per le unita sulla mappa/nel main??? 
 * skeleton UI durante il caricamento
 * AS che implementa automaticamente gli ordini
+
+problema: aggiungiamo un altro foglio dove teniamo gli ordini per il prossimo turno?

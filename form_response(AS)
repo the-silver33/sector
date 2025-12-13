@@ -260,7 +260,6 @@ function processOrderType(tipoOrdine, dettagli, quantità, target) {
     case 'attivare': componenti = det; break;
     case 'ricaricare': rifornimenti = 'ricarica(' + det + ')'; break;
     case 'cura': rifornimenti = 'cura'; break;
-    case 'consumare': rifornimenti = 'consuma(' + qty + ')'; break;
     case 'cedere': rifornimenti = 'cede(' + qty + ') a ' + tgt; break;
   }
   
