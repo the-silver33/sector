@@ -7,6 +7,12 @@ https://the-silver33.github.io/sector/test.html
 
 # To Do List
 
+## ESSENZIALE:
+*tradurre tutto in angular
+*cambiare lettere in numeri per le coordinate
+*fare il server su firebase
+*ficcare un cazzo di boolean nelle unita
+
 ## ALTA PRIORITA:
 * fare la mappa (mappa centrale+tendina a sinistra con le unita)
 *~~ ce un bug dove al posto di mandare lunita giusta manda quella precedente (html)~~
@@ -36,7 +42,9 @@ https://the-silver33.github.io/sector/test.html
 ## Next
 * dark mode
 * autosave della pagina (se la pagina viene chiusa)
-
+* acc github
+* colori paletta
+* creare nuova mail  x sector (acc idscord/tiktok/instagram/youtube)
 
 ## ???:
 * implementare l'opzione di cambiare la propria password?
@@ -45,5 +53,3 @@ https://the-silver33.github.io/sector/test.html
 * negli html barra di ricerca per le unita sulla mappa/nel main??? 
 * skeleton UI durante il caricamento
 * AS che implementa automaticamente gli ordini
-
-problema: aggiungiamo un altro foglio dove teniamo gli ordini per il prossimo turno?
