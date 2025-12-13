@@ -273,13 +273,6 @@
             } catch (fetchError) {
                 console.log('Fetch diretto fallito:', fetchError);
             }
-            
-            try {
-                console.log('Tentativo JSONP...');
-                await loadDataWithJSONP();
-            } catch (jsonpError) {
-                console.log('JSONP fallito:', jsonpError);
-            }
         }
         
         // Visualizza unità nella griglia
