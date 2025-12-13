@@ -24,12 +24,14 @@ https://the-silver33.github.io/sector/test.html
 * interfacccia utente migliore
 * fare sicurezza(anti-spam,capire piu o meno chi/come si accede all api,le password sono sicure?,) (XSS,CSRF,Bruteforce,Session hijacking,Data injection)
 * rifare invia ordini (poco sicuro e brutto)
-* spostare CeckInvalidOrders() nel test.html non nell AS
+* ~~spostare CheckOrderValidity() nel test.html non nell AS~~
+* fixxare CheckOrderValidity
 
 ## BASSA PRIORITA:
 * Quando un campo è compilato correttamente appare un check ✓; errore → highlight rosso.
 * organizzare sistema di notifiche dentro lhtml (da verificare e setuppare)
 * login/unita salvato nel locale
+* sostituire in ordini salire/scendere da mezzo al posto di posizione->unita
 
 ## Next
 * dark mode
