@@ -1,54 +1,46 @@
-// Configurazione
-var SHEET_ID = '1djpONz3rJtEce-bl4Wsy1q46NRl1jTMC3uKxN1hQMng'; // Il tuo foglio esistente
-var RESPONSE_SHEET_NAME = 'Risposte del modulo 1'; // Foglio delle risposte del form
+// Costanti di configurazione
+const PRIMA_RIGA = 3; // Prima riga da cui leggere i dati (riga 3 = dopo l'header)
+const MAIN_SHEET_NAME = 'Foglio1'; // Nome del foglio principale
+const RESPONSE_SHEET_NAME = 'Risposte del modulo 1'; // Nome del foglio delle risposte
+const SHEET_ID = 'bl4Wsy1q46NRl1jTMC3uKxN1hQMng'; // ID del foglio di lavoro
 
-// INSTALLAZIONE TRIGGER - Da eseguire una volta manualmente
-function installTrigger() {
-  ScriptApp.newTrigger('onFormSubmit')
-    .timeBased()
-    .everyMinutes(1) // Controlla ogni minuto
-    .create();
-  
-  console.log('Trigger installato!');
-}
+// Mappa delle colonne: approvata, matricola, password, nick, tipo, posizione, movimento, visione, armatura, rifornimenti, trasportata, componenti
+const COLUMNS = {
+  APPROVATA: 1,      // A
+  MATRICOLA: 2,      // B
+  PASSWORD: 3,       // C
+  NICK: 4,           // D
+  TIPO: 5,           // E
+  POSIZIONE: 6,      // F
+  MOVIMENTO: 7,      // G
+  VISIONE: 8,        // H
+  ARMATURA: 9,       // I
+  RIFORNIMENTI: 10,  // J
+  TRASPORTATA: 11,   // K
+  COMPONENTI: 12     // L
+};
 
-// TRIGGER AUTOMATICO per ogni nuova risposta
-function onFormSubmit() {
+/**
+ * Funzione principale: legge i dati dal foglio principale e li posta all'API
+ */
+function postDataToAPI() {
   try {
-    console.log('Trigger attivato - controllo nuove risposte...');
-    processAllFormResponses();
-  } catch (error) {
-    console.error('Errore nel trigger:', error.toString());
-  }
-}
-
-// TRIGGER ALTERNATIVO - Si attiva ad ogni modifica del foglio
-function installOnEditTrigger() {
-  ScriptApp.newTrigger('onSheetEdit')
-    .forSpreadsheet(SHEET_ID)
-    .onEdit()
-    .create();
-  
-  console.log('Trigger onEdit installato!');
-}
-
-function onSheetEdit(e) {
-  // Controlla se la modifica è nel foglio delle risposte
-  var sheet = e.source.getActiveSheet();
-  if (sheet.getName() === RESPONSE_SHEET_NAME) {
-    console.log('Modifica rilevata nel foglio risposte');
-    // Aspetta 2 secondi per evitare conflitti
-    Utilities.sleep(2000);
-    processAllFormResponses();
-  }
-}
-
-function doPost(e) {
-  try {
-    // Gestione CORS per preflight
-    if (e && e.parameter && e.parameter.method === 'OPTIONS') {
-      return ContentService.createTextOutput('')
-        .setMimeType(ContentService.MimeType.TEXT);
+    var spreadsheet = SpreadsheetApp.openById(SHEET_ID);
+    var mainSheet = spreadsheet.getSheetByName(MAIN_SHEET_NAME);
+    
+    if (!mainSheet) {
+      throw new Error('Foglio principale non trovato: ' + MAIN_SHEET_NAME);
+    }
+    
+    // Legge i dati dalle colonne A-L dalla PRIMA_RIGA fino all'ultima riga non vuota
+    var lastRow = mainSheet.getLastRow();
+    
+    if (lastRow < PRIMA_RIGA) {
+      return createResponse({
+        success: true,
+        data: [],
+        message: 'Nessun dato da processare'
+      });
     }
     
     // Gestione da Google Forms - Legge dalla colonna B del foglio risposte
@@ -234,7 +226,7 @@ function processRegistrationFromForm(formText) {
     sheet.getRange(rowIndex + 1, 1, 1, 12).setValues([[
       'NO', // approvata
       matricola || 'N/A',
-      '1', // Password hashed dall'HTML
+      password || 'N/A',
       nick || 'N/A',
       tipo || 'N/A',
       'N/A', // posizione
@@ -466,3 +458,7 @@ function createResponse(data) {
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }
+}
+}
+}
+
