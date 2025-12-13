@@ -41,3 +41,4 @@ https://the-silver33.github.io/sector/test.html
 * implementare sistema di notifiche sul browser fuori html (es. ricevi notifica quando nuovo turno/unita approvata??)
 * negli html barra di ricerca per le unita sulla mappa/nel main??? 
 * skeleton UI durante il caricamento
+* AS che implementa automaticamente gli ordini
